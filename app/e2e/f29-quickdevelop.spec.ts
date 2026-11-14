@@ -1,0 +1,37 @@
+import { cells, expect, open, test } from './helpers'
+
+test.describe('F29 Quick Develop', () => {
+  test('QD1 arrows move a slider on every selected photo, a preset and Reset all work, and the Develop module shows the result', async ({ page }) => {
+    await open(page)
+    const panel = page.locator('section.panel[data-title="Quick Develop"]')
+    await panel.getByRole('button', { name: 'Quick Develop', exact: true }).click()
+    await expect(panel.getByText('Select photos to change them here.')).toBeHidden().catch(() => undefined)
+    await cells(page).nth(0).click()
+    await cells(page).nth(1).click({ modifiers: ['Control'] })
+    await expect(panel.getByText(/Changes the 2 photos you picked/)).toBeVisible()
+    await panel.getByRole('button', { name: 'Exposure: much more' }).click()
+    await panel.getByRole('button', { name: 'Exposure: more' }).click()
+    await expect(page.getByText('Exposure changed on 2 photos.').first()).toBeVisible()
+    // the second photo has the nudges: 1 + 1/3
+    await cells(page).nth(1).dblclick()
+    await page.getByRole('tab', { name: 'Develop' }).click()
+    await expect(page.getByRole('slider', { name: 'Exposure', exact: true })).toHaveValue('1.33')
+    await page.getByRole('tab', { name: 'Library' }).click()
+    await page.keyboard.press('g')
+    await cells(page).nth(0).click()
+    await cells(page).nth(1).click({ modifiers: ['Control'] })
+    await panel.getByLabel('Preset').selectOption({ label: 'Warm glow' })
+    await expect(page.getByText('Preset "Warm glow" put on 2 photos.')).toBeVisible()
+    await cells(page).nth(1).dblclick()
+    await page.getByRole('tab', { name: 'Develop' }).click()
+    await expect(page.getByRole('slider', { name: 'Exposure', exact: true })).toHaveValue('0.15') // the preset's tone group replaces it
+    await page.getByRole('tab', { name: 'Library' }).click()
+    await page.keyboard.press('g')
+    await cells(page).nth(0).click()
+    await cells(page).nth(1).click({ modifiers: ['Control'] })
+    await panel.getByRole('button', { name: 'Auto tone', exact: true }).click()
+    await expect(page.getByText('Auto tone done on 2 photos.')).toBeVisible()
+    await panel.getByRole('button', { name: 'Reset all' }).click()
+    await expect(page.getByText('Edits taken off 2 photos.')).toBeVisible()
+  })
+})

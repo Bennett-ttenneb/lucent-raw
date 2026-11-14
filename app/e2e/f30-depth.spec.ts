@@ -1,0 +1,32 @@
+import { expect, open, test } from './helpers'
+
+test.describe('F30 depth masks and lens blur', () => {
+  test('DM1 + Far makes a depth mask, its range and a Lens blur can be set, and the lens blur presets use it', async ({ page }) => {
+    await open(page)
+    await page.getByRole('gridcell').first().click()
+    await page.getByRole('tab', { name: 'Develop' }).click()
+    const masks = page.locator('section.panel[data-title="Masks"]')
+    await masks.getByRole('group', { name: 'Select automatically' }).getByRole('button', { name: '+ Far' }).click()
+    await expect(masks).toContainText('Far 1')
+    await expect(masks.getByRole('slider', { name: 'Farthest' }).or(masks.getByLabel('Farthest').first())).toBeVisible()
+    await expect(masks.getByText(/Found automatically from how near each part/)).toBeVisible()
+    await masks.getByLabel('Lens blur', { exact: false }).first().fill('45')
+    await masks.getByLabel('Lens blur', { exact: false }).first().press('Enter')
+    await page.locator('section.panel[data-title="Presets"]').getByRole('button', { name: 'Lens blur: strong' }).click()
+    await expect(page.getByRole('button', { name: /Adaptive preset: Lens blur: strong/ })).toBeVisible()
+  })
+  test('OB1 + Object waits for a click on the picture, and the click makes a mask of the object there', async ({ page }) => {
+    await open(page)
+    await page.getByRole('gridcell').first().click()
+    await page.getByRole('tab', { name: 'Develop' }).click()
+    const masks = page.locator('section.panel[data-title="Masks"]')
+    await masks.getByRole('button', { name: '+ Object' }).click()
+    await expect(masks.getByText('Click the object you want on the picture.')).toBeVisible()
+    await page.locator('img.dev-img').first().click({ position: { x: 200, y: 120 } })
+    await expect(masks).toContainText('Object 1')
+    const sent = await page.evaluate(() => (globalThis as { __objects?: { x: number; y: number }[] }).__objects)
+    expect(sent).toHaveLength(1)
+    expect(sent![0].x).toBeGreaterThan(0)
+    await expect(masks.getByText('Click the object you want on the picture.')).toHaveCount(0)
+  })
+})

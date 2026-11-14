@@ -1,0 +1,28 @@
+name: Put the Linux build under a release
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Id of the finished Linux build run"
+        required: true
+      tag:
+        description: "Release tag to add the files to"
+        required: true
+        default: v0.1.0-test8
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Fetch the build and attach it
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh run download "${{ inputs.run_id }}" -n lucent-raw-linux -D out
+          find out -type f
+          find out -type f \( -name '*.AppImage' -o -name '*.deb' \) -print0 | xargs -0 gh release upload "${{ inputs.tag }}" --clobber

@@ -1,0 +1,26 @@
+﻿import { expect, open, test } from './helpers'
+
+test.describe('F30 before and after', () => {
+  test('BA1 the toolbar and the Y key step through the picture alone, side by side, and split, with the original on the left', async ({ page }) => {
+    await open(page)
+    await page.getByRole('gridcell').first().click()
+    await page.getByRole('tab', { name: 'Develop' }).click()
+    const exposure = page.getByRole('textbox', { name: 'Exposure value' })
+    await exposure.fill('1')
+    await exposure.press('Enter')
+    const group = page.getByRole('group', { name: 'Before and after' })
+    await expect(group.getByRole('button', { name: 'After only' })).toHaveAttribute('aria-pressed', 'true')
+    await group.getByRole('button', { name: 'Side by side' }).click()
+    await expect(page.getByText('Before', { exact: true }).first()).toBeVisible()
+    await expect(page.locator('.cmp-side img')).toHaveCount(2)
+    const [b, a] = await page.locator('.cmp-side img').evaluateAll((els) => els.map((e) => (e as HTMLImageElement).src))
+    expect(a).not.toBe(b)
+    await page.keyboard.press('y')
+    await expect(group.getByRole('button', { name: 'Split' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('.cmp-split img')).toHaveCount(2)
+    await expect(page.getByRole('slider', { name: 'Split position' })).toBeVisible()
+    await page.keyboard.press('y')
+    await expect(group.getByRole('button', { name: 'After only' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('.cmp-side, .cmp-split')).toHaveCount(0)
+  })
+})

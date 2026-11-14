@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Lucent Raw",
+  "mainBinaryName": "Lucent Raw",
+  "version": "0.1.0-test17",
+  "identifier": "app.penumbra.dev",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Lucent Raw",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1100,
+        "minHeight": 700,
+        "backgroundColor": "#000000"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: blob: http://thumb.localhost thumb:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "resources": ["resources/sam/*"],
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "Lucent Raw",
+    "shortDescription": "RAW photo editor and organiser you pay for once",
+    "windows": { "nsis": { "headerImage": "icons/installer/header.bmp", "sidebarImage": "icons/installer/sidebar.bmp", "installerIcon": "icons/icon.ico", "installMode": "currentUser", "displayLanguageSelector": false, "languages": ["English"] } },
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"]
+  }
+}

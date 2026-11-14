@@ -1,0 +1,31 @@
+﻿Models built into or shipped with the program, and their licences
+
+treenet-denoise-256.onnx  (AI Denoise)
+  TreeNet "Denoise Super Light" from the RawForge project (https://github.com/rymuelle/RawForge), MIT licence, taken from
+  https://huggingface.co/AyedaOk/rawlab-models (rawdenoise-rawforge-shadowweightedl1-super-light 1.0, SHA-256 of the original model.onnx
+  1684f549fec52812ffacc3020bfd61c5fde610e77460fcc03b2a7003f61e60dd). Changed only in how it is stored: a fixed 256 x 256 tile and 32-bit
+  numbers instead of a variable size and 16-bit numbers (made with onnx-simplifier), so that the program's runtime can optimise it.
+
+u2netp.onnx (subject), face_detection_yunet_2023mar.onnx (faces), migan-512-generator.onnx (fill), realesr-general-x4v3.onnx (enlarge):
+  see models-pending/README.txt and the user guide.
+
+MIT licence (for the RawForge model): Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files, to deal in the software without restriction, including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies, subject to the above copyright notice and this permission notice being included
+in all copies or substantial portions. The software is provided "as is", without warranty of any kind.
+
+depth-anything-v2-small-518.onnx  (depth range, lens blur)
+  Depth Anything V2 Small, Apache-2.0 (https://github.com/DepthAnything/Depth-Anything-V2). ONNX export by https://github.com/fabio-sim/Depth-Anything-ONNX (release v2.0.0), then local functions unfolded and simplified with onnx-simplifier.
+
+resources/sam/encoder.onnx, decoder.onnx  (Object masks)
+  SAM 2.1 Hiera tiny, Apache-2.0 (Meta, https://github.com/facebookresearch/sam2). ONNX export: https://huggingface.co/onnx-community/sam2.1-hiera-tiny-ONNX, made fixed-size with onnx-simplifier.
+
+nima-aesthetic.onnx  (Cull: how good a photo looks)
+  NIMA MobileNet aesthetic weights from idealo/image-quality-assessment (Apache-2.0, Copyright 2018 idealo internet GmbH), converted to ONNX by https://github.com/nyarrow-studio/daysta-thirdparty-sources (release nima-aesthetic-onnx-20260927); SHA-256 ade33867c4956ec33d95541e2b7bdc4416328400ecf38aa168ae1d58ff7aab66 matches the published one.
+
+
+Face parsing (face-parsing-resnet18.onnx)
+  Source: https://github.com/yakhyo/face-parsing (BiSeNet, ResNet18), code and weights released under the MIT licence.
+  Trained on CelebAMask-HQ. IMPORTANT: that dataset is offered "for non-commercial research and educational purposes only". Whether a model
+  trained on it may be sold inside a commercial product has not been settled. CHECK THIS (or replace the model with one trained on data that
+  allows commercial use) BEFORE SELLING Lucent Raw. The retouch falls back to colour tests if the model is removed.

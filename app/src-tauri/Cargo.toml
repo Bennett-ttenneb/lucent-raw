@@ -1,0 +1,47 @@
+[package]
+name = "penumbra"
+version = "0.1.0"
+description = "Photo catalog and editor (working title)"
+edition = "2021"
+
+[lib]
+name = "penumbra_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.41", features = ["bundled"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "tiff", "bmp", "webp"] }
+kamadak-exif = "0.6"
+walkdir = "2"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+blake3 = "1"
+trash = "5"
+rawler = "0.8"
+percent-encoding = "2"
+moxcms = "0.8"
+tract-onnx = "0.23"
+ab_glyph = "0.2"
+base64 = "0.22"
+roxmltree = "0.20"
+ed25519-dalek = "2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.60", features = ["Win32_Storage_FileSystem", "Win32_Foundation", "Win32_Graphics_Gdi", "Win32_UI_ColorSystem"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.dev.package."*"]
+opt-level = 2
+
+# the pixel pipeline is slow unoptimised
+[profile.dev.package.penumbra]
+opt-level = 2

@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design primitives</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-text);font:var(--text-base-weight) var(--text-base-size)/var(--text-base-line) var(--font-sans)}
+  h1{font-size:var(--text-display-size);line-height:var(--text-display-line);font-weight:var(--text-display-weight);margin:0 0 var(--space-2)}
+  h2{font-size:var(--text-panel-size);font-weight:600;margin:var(--space-7) 0 var(--space-4);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em}
+  .wrap{max-width:1180px;margin:0 auto;padding:var(--space-7) 16px 48px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--space-6);align-items:start}
+  .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden}
+  .card.chrome{background:var(--color-chrome)}
+  .pad{padding:var(--space-5)}
+  :focus-visible{outline:2px solid var(--color-accent);outline-offset:1px}
+  button{font:inherit;color:inherit}
+  /* Button */
+  .btn{background:var(--color-surface-raised);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-sm);height:28px;padding:0 14px;cursor:pointer;transition:background var(--motion-fast)}
+  .btn:hover{background:#626262}
+  .btn:active{background:#3a3a3a}
+  .btn[disabled]{color:var(--color-text-disabled);cursor:not-allowed;background:var(--color-surface-input)}
+  .btn.accent{background:var(--color-accent);color:var(--color-on-accent);font-weight:600}
+  .btn.danger{color:var(--color-danger)}
+  .btn.sm{height:22px;padding:0 8px;font-size:var(--text-xs-size)}
+  .btn.loading::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-1px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .row{display:flex;gap:var(--space-4);flex-wrap:wrap;align-items:center}
+  .icon{width:28px;height:28px;display:inline-grid;place-items:center;background:none;border:0;border-radius:var(--radius-sm);cursor:pointer;color:var(--color-text-muted)}
+  .icon:hover{background:var(--color-surface-raised);color:var(--color-text)}
+  .icon[aria-pressed=true]{color:var(--color-accent);box-shadow:inset 0 -2px 0 var(--color-accent)}
+  .icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  /* Module picker */
+  .modules{display:flex;gap:0;padding:0 var(--space-6);height:var(--layout-module-bar);align-items:center;overflow-x:auto}
+  .modules button:first-child{margin-left:auto}
+  .modules button{flex:none;background:none;border:0;font-size:var(--text-module-size);color:var(--color-text-muted);padding:0 12px;cursor:pointer;border-left:1px solid #333}
+  .modules button:first-child{border-left:0}
+  .modules button:hover{color:var(--color-text)}
+  .modules button[aria-selected=true]{color:var(--color-text-on-canvas);font-weight:500}
+  /* Panel */
+  .phead{display:flex;align-items:center;gap:var(--space-4);height:var(--layout-panel-header);padding:0 var(--space-5);background:var(--color-surface-header);width:100%;border:0;text-align:left;font-size:var(--text-panel-size);font-weight:var(--text-panel-weight);cursor:pointer;border-top:1px solid #000}
+  .phead .tri{width:0;height:0;border:5px solid transparent;border-top-color:var(--color-text-muted);border-bottom:0;transition:transform var(--motion-fast)}
+  .phead[aria-expanded=false] .tri{transform:rotate(-90deg)}
+  .phead .grow{flex:1}
+  .pbody{padding:var(--space-5)}
+  .pbody[hidden]{display:none}
+  /* Slider */
+  .slider{display:grid;grid-template-columns:76px 1fr 44px;align-items:center;gap:var(--space-4);height:var(--layout-slider-row);margin:3px 0;font-size:var(--text-sm-size)}
+  .slider label{color:var(--color-text-muted);text-align:right;cursor:default;user-select:none}
+  .slider.mod label{color:var(--color-text)}
+  .slider output{text-align:right;font-variant-numeric:tabular-nums;color:var(--color-text-muted)}
+  .slider.mod output{color:var(--color-text)}
+  .slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  .slider input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:var(--track,var(--color-surface-input));box-shadow:0 0 0 1px #00000066}
+  .slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;margin-top:-3.5px;border-radius:50%;background:var(--color-text-muted);border:1px solid #000;transition:transform var(--motion-fast)}
+  .slider input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.3);background:var(--color-text)}
+  .slider input[type=range]:focus-visible{outline:none}
+  .slider input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 2px var(--color-accent)}
+  .slider.off{opacity:1}.slider.off label,.slider.off output{color:var(--color-text-disabled)}
+  /* Stars + labels */
+  .stars{display:inline-flex;gap:2px}
+  .stars button{background:none;border:0;padding:1px;cursor:pointer;color:var(--color-text-disabled);font-size:16px;line-height:1}
+  .stars button[aria-checked=true],.stars button.on{color:var(--color-text)}
+  .chips{display:inline-flex;gap:6px}
+  .chip{width:16px;height:16px;border-radius:2px;border:1px solid #000;cursor:pointer;display:grid;place-items:center;font-size:10px;font-weight:700;color:#000}
+  .chip[aria-pressed=true]{box-shadow:0 0 0 2px var(--color-text)}
+  /* Cells */
+  .cells{display:grid;grid-template-columns:repeat(4,1fr);background:var(--color-canvas)}
+  .cell{position:relative;aspect-ratio:1;background:var(--color-cell);display:grid;place-items:center;border:0;cursor:pointer;padding:14px}
+  .cell:hover{background:var(--color-cell-hover)}
+  .cell[aria-selected=true]{background:var(--color-cell-selected)}
+  .cell .n{position:absolute;top:4px;left:6px;font-size:22px;font-weight:700;color:#8f8f8f;opacity:.9}
+  .cell[aria-selected=true] .n{color:#bdbdbd}
+  .cell .ph{width:100%;height:100%;background:linear-gradient(135deg,#556,#a98);box-shadow:0 0 0 1px #000}
+  .cell .badge{position:absolute;right:4px;bottom:4px;background:#000b;color:var(--color-text);font-size:10px;padding:1px 3px;border-radius:2px}
+  .cell.missing .ph{filter:grayscale(1) brightness(.5)}
+  .cell.missing .badge{color:var(--color-danger)}
+  .cell:focus-visible{outline:2px solid var(--color-accent);outline-offset:-3px}
+  /* Tree */
+  .tree{list-style:none;margin:0;padding:0}
+  .tree li button{display:flex;gap:6px;width:100%;align-items:center;background:none;border:0;padding:3px 8px;cursor:pointer;font-size:var(--text-sm-size);text-align:left}
+  .tree li button:hover{background:var(--color-surface-raised)}
+  .tree li button[aria-selected=true]{background:#6a6a6a}
+  .tree .cnt{margin-left:auto;color:var(--color-text-muted);font-size:var(--text-xs-size)}
+  .vol{height:3px;background:var(--color-surface-input);margin:2px 8px 6px;border-radius:2px}
+  .vol i{display:block;height:100%;width:23%;background:var(--color-text-muted)}
+  /* Filter bar */
+  .filter{display:flex;gap:var(--space-6);align-items:center;height:28px;white-space:nowrap;overflow-x:auto;padding:0 var(--space-5);background:var(--color-surface-raised);font-size:var(--text-sm-size)}
+  .filter button{background:none;border:0;padding:4px 2px;color:var(--color-text-muted);cursor:pointer}
+  .filter button[aria-selected=true]{color:var(--color-text);box-shadow:inset 0 -2px 0 var(--color-accent)}
+  /* History */
+  .hist{list-style:none;margin:0;padding:0;font-size:var(--text-xs-size)}
+  .hist li{display:flex;gap:var(--space-4);padding:2px 8px;cursor:pointer}
+  .hist li:hover{background:var(--color-surface-raised)}
+  .hist li[aria-current=true]{background:#d0d0d0;color:#111}
+  .hist .d{margin-left:auto;color:var(--color-text-muted)}.hist .v{width:36px;text-align:right}
+  .hist li[aria-current=true] .d{color:#333}
+  /* Inputs */
+  .field{background:var(--color-surface-input);color:var(--color-text);border:1px solid var(--color-border-input);border-radius:var(--radius-sm);height:24px;padding:0 8px;width:100%;font:inherit;font-size:var(--text-sm-size)}
+  .field::placeholder{color:var(--color-text-muted)}
+  .field.invalid{border-color:var(--color-danger)}
+  .err{color:var(--color-danger);font-size:var(--text-xs-size);margin-top:2px}
+  .canvasbox{background:var(--color-canvas);height:150px;display:grid;place-items:center;position:relative}
+  .overlay{position:absolute;left:12px;top:10px;font-size:var(--text-overlay-size);line-height:var(--text-overlay-line);font-weight:600;color:var(--color-text-on-canvas);text-shadow:0 1px 2px #0008}
+  .overlay small{display:block;font-size:var(--text-sm-size);font-weight:400}
+  .toast{background:var(--color-chrome);color:var(--color-text);padding:6px 12px;border-radius:var(--radius-md);font-size:var(--text-sm-size);box-shadow:var(--shadow-pop);display:inline-block}
+  .legend{background:var(--color-chrome);padding:10px;border-radius:var(--radius-md)}
+  .legend div{display:flex;gap:8px;align-items:center;font-size:var(--text-sm-size);padding:2px 0}
+  .pin{width:16px;height:14px;border-radius:3px 3px 3px 0;display:inline-block}
+  canvas{display:block;width:100%;height:90px;background:var(--color-surface-input)}
+  .note{color:var(--color-text-muted);font-size:var(--text-xs-size);margin:var(--space-3) 0 0}
+  .sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Design primitives</h1>
+  <p class="note" style="font-size:14px">Built on <code>tokens.css</code>. Dark, neutral-grey, photo-first. Every colour is a role. Try: Tab through, double-click a slider label to reset it, press 0 to 5 on the stars, click panel headers.</p>
+
+  <h2>Shell</h2>
+  <div class="card chrome">
+    <div class="modules" role="tablist" aria-label="Modules" id="modules">
+      <button role="tab" aria-selected="false">Library</button>
+      <button role="tab" aria-selected="true">Develop</button>
+      <button role="tab" aria-selected="false">Map</button>
+      <button role="tab" aria-selected="false">Book</button>
+      <button role="tab" aria-selected="false">Slideshow</button>
+      <button role="tab" aria-selected="false">Print</button>
+      <button role="tab" aria-selected="false">Web</button>
+    </div>
+  </div>
+
+  <h2>Buttons and toggles</h2>
+  <div class="card pad"><div class="row">
+    <button class="btn">Default</button>
+    <button class="btn accent">Primary</button>
+    <button class="btn danger">Danger</button>
+    <button class="btn sm">Small</button>
+    <button class="btn" disabled>Disabled</button>
+    <button class="btn loading" aria-busy="true">Working</button>
+    <button class="icon" aria-label="Edit" aria-pressed="true"><svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.4"/><circle cx="10" cy="8" r="1.4"/><circle cx="6" cy="12" r="1.4"/></svg></button>
+    <button class="icon" aria-label="Crop" aria-pressed="false"><svg viewBox="0 0 16 16"><path d="M4 1v11h11M1 4h11v11"/></svg></button>
+    <button class="icon" aria-label="Masking" aria-pressed="false"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/></svg></button>
+  </div></div>
+
+  <div class="grid" style="margin-top:var(--space-7)">
+    <div>
+      <h2 style="margin-top:0">Panel and sliders</h2>
+      <div class="card">
+        <button class="phead" aria-expanded="true" aria-controls="basic"><span class="tri"></span><span class="grow">Basic</span></button>
+        <div class="pbody" id="basic">
+          <div class="slider" id="s-temp" data-def="5500" style="--track:linear-gradient(90deg,#3b6fe0,#e8e8e8,#e0a63a)"><label for="r-temp">Temp</label><input id="r-temp" type="range" min="2000" max="50000" value="5500"><output>5500</output></div>
+          <div class="slider" data-def="5" style="--track:linear-gradient(90deg,#3fae4f,#e8e8e8,#c04fd0)"><label for="r-tint">Tint</label><input id="r-tint" type="range" min="-150" max="150" value="5"><output>+5</output></div>
+          <div class="slider" data-def="0" data-dec="2"><label for="r-exp">Exposure</label><input id="r-exp" type="range" min="-500" max="500" value="-153"><output>-1,53</output></div>
+          <div class="slider" data-def="0"><label for="r-con">Contrast</label><input id="r-con" type="range" min="-100" max="100" value="7"><output>+7</output></div>
+          <div class="slider off" data-def="0"><label for="r-dis">Disabled</label><input id="r-dis" type="range" disabled value="0"><output>0</output></div>
+        </div>
+        <button class="phead" aria-expanded="false" aria-controls="tone"><span class="tri"></span><span class="grow">Tone Curve</span></button>
+        <div class="pbody" id="tone" hidden><p class="note">Collapsed sections stay in the tab order via their header.</p></div>
+      </div>
+    </div>
+
+    <div>
+      <h2 style="margin-top:0">Library: tree, filter, cells</h2>
+      <div class="card">
+        <button class="phead" aria-expanded="true" aria-controls="cat"><span class="tri"></span><span class="grow">Catalog</span></button>
+        <ul class="tree" id="cat" role="tree">
+          <li><button role="treeitem" aria-selected="false">All Photographs <span class="cnt">325</span></button></li>
+          <li><button role="treeitem" aria-selected="false">Quick Collection <span class="cnt">1</span></button></li>
+          <li><button role="treeitem" aria-selected="true">Previous Import <span class="cnt">298</span></button></li>
+        </ul>
+        <button class="phead" aria-expanded="true" aria-controls="fold"><span class="tri"></span><span class="grow">Folders</span></button>
+        <div id="fold"><div style="padding:6px 8px"><input class="field" placeholder="Filter folders" aria-label="Filter folders"></div>
+          <div style="padding:2px 8px;font-size:13px;display:flex;justify-content:space-between"><span>OS (C:)</span><span class="cnt" style="color:var(--color-text-muted);font-size:12px">106 / 453 GB</span></div><div class="vol"><i></i></div></div>
+      </div>
+      <div class="card" style="margin-top:var(--space-5)">
+        <div class="filter" role="tablist"><span style="color:var(--color-text-muted)">Library filter</span><button role="tab" aria-selected="false">Text</button><button role="tab" aria-selected="false">Attribute</button><button role="tab" aria-selected="false">Metadata</button><button role="tab" aria-selected="true">None</button></div>
+        <div class="cells" role="grid" aria-label="Photos" id="cells">
+          <button class="cell" role="gridcell" aria-selected="false"><span class="n">209</span><span class="ph"></span><span class="badge">edited</span></button>
+          <button class="cell" role="gridcell" aria-selected="true"><span class="n">210</span><span class="ph"></span><span class="badge">crop</span></button>
+          <button class="cell missing" role="gridcell" aria-selected="false"><span class="n">211</span><span class="ph"></span><span class="badge">! missing</span></button>
+          <button class="cell" role="gridcell" aria-selected="false"><span class="n">212</span><span class="ph"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2 style="margin-top:0">Rating, flags, labels</h2>
+      <div class="card pad">
+        <div class="row">
+          <div class="stars" role="radiogroup" aria-label="Rating" id="stars" tabindex="0"></div>
+          <span id="starsval" class="note" aria-live="polite">3 of 5 stars</span>
+        </div>
+        <div class="row" style="margin-top:var(--space-5)">
+          <div class="chips" id="chips"></div>
+          <button class="btn sm" aria-pressed="false" id="pick">Pick</button>
+          <button class="btn sm danger" aria-pressed="false" id="rej">Reject</button>
+        </div>
+        <p class="note">Labels carry a letter, so colour is never the only signal.</p>
+      </div>
+      <h2>Inputs</h2>
+      <div class="card pad">
+        <label style="font-size:13px;color:var(--color-text-muted)" for="f1">Title</label>
+        <input class="field" id="f1" value="Group portrait">
+        <label style="font-size:13px;color:var(--color-text-muted);display:block;margin-top:8px" for="f2">Export size (px)</label>
+        <input class="field invalid" id="f2" value="-5" aria-invalid="true" aria-describedby="e2">
+        <div class="err" id="e2">Enter a number above 0.</div>
+      </div>
+    </div>
+
+    <div>
+      <h2 style="margin-top:0">Develop: history, histogram, canvas</h2>
+      <div class="card">
+        <button class="phead" aria-expanded="true" aria-controls="hist"><span class="tri"></span><span class="grow">History</span></button>
+        <ul class="hist" id="hist" style="padding:4px 0">
+          <li aria-current="true">Export - Hard Drive <span class="d"></span></li>
+          <li>Temperature <span class="d">-300</span><span class="v">5,5K</span></li>
+          <li>Temperature <span class="d">-200</span><span class="v">5,8K</span></li>
+          <li>Saturation <span class="d">+10</span><span class="v">11</span></li>
+          <li>Crop Rectangle</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:var(--space-5)"><canvas id="histo" role="img" aria-label="Histogram, no clipping"></canvas></div>
+      <div class="card canvasbox" style="margin-top:var(--space-5)"><div class="overlay">_MG_0258.CR2<small>1/160 sec at ƒ / 2,8, ISO 800</small></div></div>
+    </div>
+
+    <div>
+      <h2 style="margin-top:0">Feedback</h2>
+      <div class="card pad">
+        <div class="toast" role="status">Rating set to 3</div>
+        <p class="note">Map pin legend (shape plus colour):</p>
+        <div class="legend">
+          <div><span class="pin" style="background:var(--color-label-red);border-radius:3px"></span> Unselected photo</div>
+          <div><span class="pin" style="background:var(--color-select);border-radius:50% 50% 50% 0"></span> Selected photo</div>
+          <div><span class="pin" style="background:var(--color-label-red);outline:2px solid var(--color-text);outline-offset:1px"></span> Group at same location</div>
+        </div>
+        <p class="note" style="margin-top:12px">Offline map state (never blank):</p>
+        <div class="canvasbox" style="height:80px;background:var(--color-chrome)"><span style="color:var(--color-text-muted);font-size:13px">Map tiles unavailable. Check your connection.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Panels
+document.querySelectorAll('.phead').forEach(h=>h.addEventListener('click',()=>{
+  const open=h.getAttribute('aria-expanded')==='true';
+  h.setAttribute('aria-expanded',String(!open));
+  const b=document.getElementById(h.getAttribute('aria-controls')); if(b) b.hidden=open;
+}));
+// Modules
+document.querySelectorAll('#modules button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#modules button').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+}));
+// Filter tabs, tree, cells, icon toggles
+document.querySelectorAll('.filter button').forEach(b=>b.addEventListener('click',()=>document.querySelectorAll('.filter button').forEach(x=>x.setAttribute('aria-selected',String(x===b)))));
+document.querySelectorAll('.tree button').forEach(b=>b.addEventListener('click',()=>document.querySelectorAll('.tree button').forEach(x=>x.setAttribute('aria-selected',String(x===b)))));
+document.querySelectorAll('.cell').forEach(c=>c.addEventListener('click',()=>document.querySelectorAll('.cell').forEach(x=>x.setAttribute('aria-selected',String(x===c)))));
+document.querySelectorAll('.icon').forEach(b=>b.addEventListener('click',()=>b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true'))));
+document.querySelectorAll('#pick,#rej').forEach(b=>b.addEventListener('click',()=>b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true'))));
+// Sliders (locale-aware value, double-click label resets)
+const fmt=(v,dec,signed)=>{const n=dec?v/Math.pow(10,dec):v;const s=n.toLocaleString('de-DE',{minimumFractionDigits:dec||0,maximumFractionDigits:dec||0});return signed&&n>0?'+'+s:s};
+document.querySelectorAll('.slider').forEach(s=>{
+  const r=s.querySelector('input'),o=s.querySelector('output'),def=+s.dataset.def,dec=+s.dataset.dec||0,signed=r.min<0;
+  const upd=()=>{o.textContent=r.id==='r-temp'?r.value:fmt(+r.value,dec,signed);s.classList.toggle('mod',+r.value!==def);r.setAttribute('aria-valuetext',o.textContent)};
+  r.addEventListener('input',upd); s.querySelector('label').addEventListener('dblclick',()=>{r.value=def;upd()});
+  r.addEventListener('dblclick',()=>{r.value=def;upd()}); upd();
+});
+// Stars
+const stars=document.getElementById('stars'),sv=document.getElementById('starsval');let rating=3;
+for(let i=1;i<=5;i++){const b=document.createElement('button');b.setAttribute('role','radio');b.setAttribute('aria-label',i+' star'+(i>1?'s':''));b.textContent='★';b.dataset.v=i;stars.appendChild(b);b.addEventListener('click',()=>set(rating===i?0:i))}
+function set(v){rating=v;[...stars.children].forEach((b,i)=>{b.classList.toggle('on',i<v);b.setAttribute('aria-checked',String(i+1===v))});sv.textContent=v+' of 5 stars'}
+stars.addEventListener('keydown',e=>{if(/^[0-5]$/.test(e.key))set(+e.key)});set(3);
+// Label chips
+const cols=[['R','--color-label-red'],['Y','--color-label-yellow'],['G','--color-label-green'],['B','--color-label-blue'],['P','--color-label-purple']];
+const chips=document.getElementById('chips');cols.forEach(([l,c])=>{const b=document.createElement('button');b.className='chip';b.style.background='var('+c+')';b.textContent=l;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',{R:'Red',Y:'Yellow',G:'Green',B:'Blue',P:'Purple'}[l]+' label');chips.appendChild(b);b.addEventListener('click',()=>{[...chips.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b&&x.getAttribute('aria-pressed')!=='true')))})});
+// Histogram stand-in
+const cv=document.getElementById('histo'),dpr=devicePixelRatio||1;cv.width=cv.clientWidth*dpr;cv.height=90*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);
+const W=cv.clientWidth;[['#e0413a55',.28],['#3fae4f55',.5],['#3b6fe055',.72]].forEach(([c,p])=>{g.beginPath();g.moveTo(0,90);for(let x=0;x<=W;x+=2){const t=x/W;const y=90-70*Math.exp(-Math.pow((t-p)/.14,2))-12*Math.exp(-Math.pow((t-.9)/.05,2));g.lineTo(x,y)}g.lineTo(W,90);g.fillStyle=c;g.fill()});
+</script>
+</body>
+</html>

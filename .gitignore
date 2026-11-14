@@ -1,0 +1,27 @@
+node_modules/
+target/
+dist/
+test-results/
+*.exe
+
+# Internal planning and research: kept on disk, not published
+/recon.md
+/parity.md
+/feedback.md
+/reviews.csv
+/research/
+/launch/
+/HANDOVER.md
+/bugs.md
+/build-log.md
+/build-queue.md
+/fixes.md
+/features.csv
+/test-plan.md
+/architecture.md
+/backend.md
+/brand.md
+/brand.json
+/tools/parity.mjs
+# Non-commercial training data; see MODELS-NOT-INCLUDED.md
+/app/src-tauri/resources/face-parsing-resnet18.onnx

@@ -1,0 +1,41 @@
+import { expect, open, test } from './helpers'
+
+test.describe('F30 compare and survey', () => {
+  test('CS1 C puts the open photo on the left as the Select and the next one on the right as the Candidate; arrows change the Candidate, Make Candidate the Select keeps it, Done goes back to the loupe on the Select', async ({ page }) => {
+    await open(page)
+    await page.getByRole('gridcell').first().click()
+    await page.keyboard.press('c')
+    const cmp = page.getByRole('group', { name: 'Compare' })
+    await expect(cmp).toBeVisible()
+    const first = await cmp.getByRole('figure').first().getAttribute('aria-label')
+    const cand1 = await cmp.getByRole('figure').nth(1).getAttribute('aria-label')
+    expect(first).toMatch(/^Select: /)
+    expect(cand1).toMatch(/^Candidate: /)
+    expect(first!.slice(8)).not.toBe(cand1!.slice(11))
+    await page.keyboard.press('ArrowRight')
+    const cand2 = await cmp.getByRole('figure').nth(1).getAttribute('aria-label')
+    expect(cand2).not.toBe(cand1)
+    expect(await cmp.getByRole('figure').first().getAttribute('aria-label')).toBe(first) // the Select stays
+    await cmp.getByRole('button', { name: 'Make Candidate the Select' }).click()
+    expect(await cmp.getByRole('figure').first().getAttribute('aria-label')).toBe('Select: ' + cand2!.slice(11))
+    await cmp.getByRole('button', { name: 'Swap' }).click()
+    expect(await cmp.getByRole('figure').nth(1).getAttribute('aria-label')).toBe('Candidate: ' + cand2!.slice(11))
+    await cmp.getByRole('button', { name: 'Done' }).click()
+    await expect(page.getByRole('group', { name: 'Compare' })).toHaveCount(0)
+    await expect(page.locator('.loupe')).toBeVisible()
+  })
+
+  test('CS2 N shows the selected photos together, a click makes one the open photo, and the cross takes one out', async ({ page }) => {
+    await open(page)
+    const cells = page.getByRole('gridcell')
+    await cells.nth(0).click()
+    await cells.nth(2).click({ modifiers: ['Shift'] })
+    await page.keyboard.press('n')
+    const sv = page.getByRole('group', { name: 'Survey' })
+    await expect(sv.getByRole('figure')).toHaveCount(3)
+    await sv.getByRole('button', { name: /^Remove .* from the survey$/ }).first().click()
+    await expect(sv.getByRole('figure')).toHaveCount(2)
+    await page.getByRole('button', { name: 'Grid', exact: true }).click()
+    await expect(page.getByRole('group', { name: 'Survey' })).toHaveCount(0)
+  })
+})
