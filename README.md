@@ -4,6 +4,12 @@ A RAW photo organiser and editor for Windows that works offline: no account, no 
 
 **Status: in testing.** Tester builds are on the [Releases page](https://github.com/Bennett-ttenneb/lucent-raw/releases). The installer is not code-signed yet, so Windows will show a warning.
 
+![Library: grid of photos with folders, keywords and ratings](docs/img/library.png)
+
+![Develop: presets, masks and tone controls beside the photo](docs/img/develop.png)
+
+<sub>Screenshots use placeholder colour tiles in place of photos.</sub>
+
 ## What it does
 
 - **Library**: import, stars, flags, colour labels, keywords, collections
