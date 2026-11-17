@@ -11,7 +11,11 @@ use std::sync::{Arc, Mutex, OnceLock};
 use image::RgbImage;
 use tract_onnx::prelude::*;
 
+#[cfg(has_face_parsing)]
 const MODEL: &[u8] = include_bytes!("../resources/face-parsing-resnet18.onnx");
+/// A build made without the model file (see build.rs) has none: `parse` then says so, and the retouch uses colour tests.
+#[cfg(not(has_face_parsing))]
+const MODEL: &[u8] = &[];
 pub const SIDE: usize = 512;
 const CLASSES: usize = 19;
 /// The crop is this many times the longer radius of the face ellipse, each way from the middle: the face, with its hair, ears and neck in view.
@@ -43,6 +47,9 @@ fn model() -> Result<&'static Arc<Model>, String> {
     static CACHE: OnceLock<Result<Arc<Model>, String>> = OnceLock::new();
     CACHE
         .get_or_init(|| {
+            if MODEL.is_empty() {
+                return Err("this build has no face-parsing model".to_string());
+            }
             let load = || -> TractResult<Arc<Model>> {
                 let m = tract_onnx::onnx().model_for_read(&mut std::io::Cursor::new(MODEL))?.with_input_fact(0, f32::fact([1, 3, SIDE, SIDE]).into())?;
                 Ok(m.into_optimized()?.into_runnable()?)
@@ -273,6 +280,7 @@ pub fn parse(img: &RgbImage, cx: f32, cy: f32, radius: f32, angle: f32) -> Resul
 mod tests {
     use super::*;
 
+    #[cfg(has_face_parsing)]
     #[test]
     fn the_model_loads_and_a_blank_picture_has_no_face_in_it() {
         let img = RgbImage::from_pixel(300, 300, image::Rgb([120, 120, 125]));
