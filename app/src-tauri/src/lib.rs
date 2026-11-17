@@ -412,7 +412,12 @@ fn licence_path(state: &AppState) -> PathBuf {
 
 fn licence_status_now(state: &AppState) -> licence::Status {
     let f = licence::load(&licence_path(state), chrono::Local::now().date_naive());
-    let s = licence::status_for(&f, chrono::Local::now().date_naive(), &licence::PUBLIC_KEY, env!("CARGO_PKG_VERSION"));
+    let mut s = licence::status_for(&f, chrono::Local::now().date_naive(), &licence::PUBLIC_KEY, env!("CARGO_PKG_VERSION"));
+    if licence::FREE && s.state != "licensed" {
+        // nothing to count down and nothing to lock: the program is free
+        s.state = "free".into();
+        s.days_left = 0;
+    }
     licence::apply(&s);
     s
 }
@@ -2323,6 +2328,10 @@ async fn update_check(app: tauri::AppHandle) -> Result<update::Update, String> {
 #[tauri::command]
 fn update_open(version: String) -> Result<(), String> {
     let url = update::release_url(&version).ok_or("That is not a version of Lucent Raw.")?;
+    open_in_browser(&url)
+}
+
+fn open_in_browser(url: &str) -> Result<(), String> {
     #[cfg(target_os = "windows")]
     let program = "explorer";
     #[cfg(target_os = "macos")]
@@ -2330,6 +2339,18 @@ fn update_open(version: String) -> Result<(), String> {
     #[cfg(all(unix, not(target_os = "macos")))]
     let program = "xdg-open";
     std::process::Command::new(program).arg(url).spawn().map(|_| ()).map_err(|e| format!("The page could not be opened: {e}"))
+}
+
+/// The donation page for the "Buy the developer a coffee" button, or nothing when there is none.
+#[tauri::command]
+fn donate_url() -> Option<String> {
+    update::donate_url().map(str::to_string)
+}
+
+/// Show the donation page in the web browser. Only the page fixed in the program can be opened.
+#[tauri::command]
+fn donate_open() -> Result<(), String> {
+    open_in_browser(update::donate_url().ok_or("There is no donation page.")?)
 }
 
 /// What synchronising this folder would do: the files on the disk the catalog does not have, and the photos whose files are gone.
@@ -3189,6 +3210,8 @@ pub fn run() {
             app_version,
             update_check,
             update_open,
+            donate_url,
+            donate_open,
             folder_sync_run,
             photo_rename_copy,
             import_cards,

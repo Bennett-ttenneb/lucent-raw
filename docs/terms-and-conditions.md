@@ -2,24 +2,21 @@
 
 Effective 12 November 2026. Applies to Lucent Raw version 0.1.0 and later.
 
-**In short:** you may try Lucent Raw free for 30 days. After that, a licence key bought once lets you keep editing for as long as you like, with every version 1 update included. Your photos stay yours. The program is provided as it is, and you are responsible for keeping backups of your photos and catalog.
+**In short:** Lucent Raw is free to use, with nothing locked and no licence key. If you like it, you can buy the developer a coffee with the donate button, but you never have to. Your photos stay yours. The program is provided as it is, and you are responsible for keeping backups of your photos and catalog.
 
 ## 1. Who these terms are between
 
 These terms are an agreement between you and the maker of Lucent Raw ("we", "us"). You can contact us at **bbotnicsindustries@gmail.com**. By installing or using Lucent Raw you accept these terms. If you do not accept them, do not install or use the program.
 
-## 2. The trial
+## 2. Free to use
 
-- You may use the whole program free for **30 days** from the day you first start it.
-- When the trial ends, edits are no longer saved until you enter a licence key. Opening your catalog, rating, keywording and exporting carry on working, and nothing you made is deleted or locked away.
+- Lucent Raw is **free**. You may use the whole program, for as long as you like, without paying and without a licence key. Nothing is locked.
 - Test builds ("tester builds") are unfinished. They are given to you to try and report on, they may have faults, and they may stop being supported at any time.
 
-## 3. Your licence
+## 3. Your licence to use it
 
-- A licence key is bought **once**. It does not expire and there is no subscription.
-- A key for version 1 works in **every version 1 update**. A later major version (version 2 and so on) may need a new key; your version 1 key and your version 1 program keep working.
-- The licence is for **one person**. You may install the program on the computers you yourself use. You may not share, resell or publish your key.
-- The program is licensed to you, not sold: we keep the rights in the program itself, its name and its logo.
+- You may install the program on the computers you yourself use, and use it for your own photographs, personal or paid.
+- The program is licensed to you, not sold: we keep the rights in the program itself, its name and its logo. You may not sell it, rebrand it or pass it off as your own.
 
 ## 4. What you may not do
 
@@ -43,10 +40,11 @@ The AI tools (denoise, subject and object selection, face finding and retouching
 
 If you switch on the AI connection, an assistant on your own computer can read your catalog and act in it. What that assistant does is governed by its own provider's terms, not by these.
 
-## 8. Price, payment and refunds
+## 8. Donations
 
-- The price is the one shown where you buy the licence, at the time you buy it. **[The price and where it is sold are still to be decided.]**
-- **Refunds: [the refund period is still to be decided].** Because you can try the whole program free for 30 days before buying, please use the trial to make sure it suits you and your computer.
+- There is no price. The "Buy the developer a coffee" button opens a PayPal page in your web browser, where you can give any amount you choose, once. It is a gift to the developer: it buys nothing, gives no extra rights or features, and creates no duty to support or update the program.
+- The payment is made to PayPal, under PayPal's own terms and privacy statement. The program itself sends nothing to anyone when you press the button.
+- Because a donation is a gift and not a purchase, it is not refundable by us. If you gave by mistake, write to us at the address below and we will try to help.
 - Nothing in these terms takes away rights that the law gives you as a consumer and that cannot be signed away, such as those under the Consumer Protection Act and the Electronic Communications and Transactions Act in South Africa, or the consumer laws of your own country.
 
 ## 9. Updates and support
@@ -59,11 +57,11 @@ As far as the law allows, Lucent Raw is provided **"as is"**, without any promis
 
 ## 11. Limit of our liability
 
-As far as the law allows, we are not liable for lost photos or data, lost income or profit, or any indirect or consequential loss arising from the use of the program, and our total liability to you is limited to the amount you paid for your licence. This does not limit liability that cannot be limited by law.
+As far as the law allows, we are not liable for lost photos or data, lost income or profit, or any indirect or consequential loss arising from the use of the program, and, because the program is free, our total liability to you is limited to the most the law allows (and to nothing where it allows that). This does not limit liability that cannot be limited by law.
 
 ## 12. Ending these terms
 
-Your licence lasts for as long as you keep to these terms. If you break them (for example by sharing your key), your licence ends and you must stop using the program. You may stop using the program at any time by uninstalling it; your photos and catalog stay on your computer.
+Your licence lasts for as long as you keep to these terms. If you break them (for example by selling or rebranding the program), your licence ends and you must stop using the program. You may stop using the program at any time by uninstalling it; your photos and catalog stay on your computer.
 
 ## 13. Changes to these terms
 

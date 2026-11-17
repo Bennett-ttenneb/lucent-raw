@@ -10,6 +10,15 @@ use serde::Serialize;
 const RELEASES_API: &str = "https://api.github.com/repos/Bennett-ttenneb/lucent-raw/releases?per_page=30";
 pub const RELEASES_PAGE: &str = "https://github.com/Bennett-ttenneb/lucent-raw/releases";
 
+/// Where the "Buy the developer a coffee" button goes: a PayPal donation page made from the developer's PayPal address. Making this
+/// empty hides the button everywhere. It is a fixed address in the program, never one that anything can hand it.
+pub const DONATE_URL: &str = "https://www.paypal.com/donate/?business=bbotnicsindustries%40gmail.com&item_name=Lucent+Raw+%28buy+the+developer+a+coffee%29&no_recurring=0&currency_code=USD";
+
+/// The donation page, or nothing when there is none (empty, or not an https address).
+pub fn donate_url() -> Option<&'static str> {
+    DONATE_URL.starts_with("https://").then_some(DONATE_URL)
+}
+
 /// A version as numbers that sort: major, minor, patch, then the test build number (a finished release, with no
 /// "-testN", sorts after every test build of the same version). "v0.1.0-test17" and "0.1.0-test17" are the same.
 /// Anything that is not exactly that shape is not a version: it is never put into an address or shown.
@@ -98,6 +107,18 @@ pub fn check(current: &str) -> Result<Update, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_donate_address_is_a_secure_address_on_a_payment_site_or_there_is_none() {
+        match donate_url() {
+            None => assert!(DONATE_URL.is_empty()),
+            Some(u) => {
+                let host = u.trim_start_matches("https://").split(['/', '?']).next().unwrap();
+                assert!(["www.paypal.com", "paypal.me", "www.buymeacoffee.com", "buymeacoffee.com", "ko-fi.com"].contains(&host), "{host}");
+                assert!(!u.contains(' ') && !u.contains('"'), "an address with no stray characters");
+            }
+        }
+    }
 
     #[test]
     fn versions_sort_by_number_and_a_finished_release_beats_its_test_builds() {

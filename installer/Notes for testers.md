@@ -10,7 +10,13 @@ Thank you for trying Lucent Raw. This is an early version (0.1). It is a RAW pho
 - **It is a 30 day trial.** After 30 days editing stops until a licence key is entered (Preferences > Licence). You will be given a tester key that unlocks everything; the key is checked on your computer and needs no internet.
 - **Back up the catalog before updating**: Catalogs window > Automatic backups. The program does this by itself once a day and before any catalog upgrade.
 
-## New in this build (test 18)
+## New in this build (test 19)
+
+- **Lucent Raw is free.** The 30 day trial and the licence key are gone: nothing is locked and no key is needed. (The trial and key code are still in the program, switched off.)
+- **"Buy the developer a coffee"** button in the header and in Preferences under Licence. It opens a PayPal donation page in your web browser; the program sends nothing. Giving is optional and buys nothing. (The page is made from the developer's PayPal address, so please try it and tell me if PayPal says it cannot take a donation.)
+- The terms and conditions and the privacy policy are updated for all of this.
+
+## Before that (test 18)
 
 - **The program now tells you when a newer version is out.** When it starts (and you are online) it asks GitHub for the list of releases and shows a small notice in the header if there is a newer one; pressing it opens the release page in your web browser. Nothing is downloaded or installed by itself, and nothing about you or your photos is sent. It can be switched off in Preferences > Updates, where there is also a Check now button. The privacy policy and terms describe it.
 - **Preferences > About now shows the exact build** (for example 0.1.0-test18).

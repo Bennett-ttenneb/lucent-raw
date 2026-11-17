@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLicence } from '../lib/licence'
 import { useStore } from '../lib/store'
+import { DonateButton } from './Update'
 
 /** A small button beside Preferences while the program is on trial or the trial is over. It opens Preferences, where the key goes. */
 export function LicenceChip() {
@@ -8,7 +9,7 @@ export function LicenceChip() {
   useEffect(() => {
     void useLicence.getState().refresh()
   }, [])
-  if (!status || status.state === 'licensed') return null
+  if (!status || status.state === 'licensed' || status.state === 'free') return null
   const text = status.state === 'trial' ? `Trial: ${status.daysLeft} ${status.daysLeft === 1 ? 'day' : 'days'} left` : 'Trial ended'
   return (
     <button type="button" className="btn sm licence-chip" data-state={status.state} onClick={() => useStore.setState({ preferencesOpen: true })} title="See your licence, or enter a licence key">
@@ -64,6 +65,13 @@ export function LicenceSection({ open }: { open: boolean }) {
           Licensed to <strong>{status.name}</strong>. It does not expire, and it works in every version 1 update.
         </p>
       )}
+      {status?.state === 'free' && (
+        <>
+          <p role="status">Lucent Raw is free to use, and nothing is locked. No licence key is needed.</p>
+          <p className="hint">If it is useful to you, you can help the developer keep making it.</p>
+          <DonateButton />
+        </>
+      )}
       {status?.state === 'trial' && (
         <p role="status">
           You are using the 30 day trial: {status.daysLeft} {status.daysLeft === 1 ? 'day' : 'days'} left. Nothing is locked now; after the trial, editing needs a licence key.
@@ -71,7 +79,7 @@ export function LicenceSection({ open }: { open: boolean }) {
       )}
       {status?.state === 'expired' && <p role="status">The 30 day trial has ended. Edits are not saved until you enter a licence key. Opening your catalog, rating, keywording and exporting still work.</p>}
       {status?.problem && <p className="err">{status.problem}</p>}
-      {status && status.state !== 'licensed' && (
+      {status && status.state !== 'licensed' && status.state !== 'free' && (
         <>
           <label className="stack">
             Licence key
@@ -90,7 +98,7 @@ export function LicenceSection({ open }: { open: boolean }) {
           {error}
         </p>
       )}
-      <p className="hint">The key is checked on this computer. Nothing is sent anywhere.</p>
+      {status?.state !== 'free' && <p className="hint">The key is checked on this computer. Nothing is sent anywhere.</p>}
     </fieldset>
   )
 }

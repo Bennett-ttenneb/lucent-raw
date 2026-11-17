@@ -14,6 +14,7 @@ function mockFromUrl(): Api {
     failWrites: q.get('fail') === '1',
     noFaces: q.get('nofaces') === '1',
     newerVersion: q.get('newer') ?? undefined,
+    donate: q.get('donate') === '1',
     failPreview: q.get('failpreview') === '1',
     mcpFail: q.get('mcpfail') === '1',
     bookFail: q.get('bookfail') === '1',
@@ -25,7 +26,7 @@ function mockFromUrl(): Api {
     xmpForeign: q.get('xmpforeign') === '1',
     xmpFail: q.get('xmpfail') === '1',
     backupFail: q.get('backupfail') === '1',
-    licence: (['licensed', 'trial', 'expired'] as const).find((v) => v === q.get('licence')),
+    licence: (['licensed', 'trial', 'expired', 'free'] as const).find((v) => v === q.get('licence')),
     // ?catalogs=2 puts two more catalogs on the list: one that holds photos' worth of nothing yet, and one whose folder is gone
     extraCatalogs: q.get('catalogs') === '2' ? [{ id: 'old', name: 'Old shoots', path: 'memory://old' }, { id: 'lost', name: 'Lost drive', path: 'memory://gone/Lost drive' }] : undefined,
   })

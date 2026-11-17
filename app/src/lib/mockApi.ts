@@ -20,6 +20,8 @@ export interface MockOptions {
   noFaces?: boolean
   /** a newer version that the update check finds (none by default) */
   newerVersion?: string
+  /** the donation button is shown (it is hidden by default so the other tests see the plain page) */
+  donate?: boolean
   /** switching the AI connection on fails (the browser tests use ?mcpfail=1) */
   mcpFail?: boolean
   /** making a book PDF fails (the browser tests use ?bookfail=1) */
@@ -35,7 +37,7 @@ export interface MockOptions {
   /** the backup fails (the browser tests use ?backupfail=1) */
   backupFail?: boolean
   /** where the licence stands (the browser tests use ?licence=trial, expired or licensed) */
-  licence?: 'licensed' | 'trial' | 'expired'
+  licence?: 'licensed' | 'trial' | 'expired' | 'free'
   /** more catalogs on the list from the start (the browser tests use ?catalogs=2) */
   extraCatalogs?: { id: string; name: string; path: string }[]
   /** Make the export preview fail. */
@@ -311,8 +313,8 @@ export function createMockApi(seedCount = 96, opts: MockOptions = {}): Api {
   // ---- looking after the catalog
   let lastBackup: string | null = null
   const backups: string[] = []
-  let licenceState: 'licensed' | 'trial' | 'expired' = opts.licence ?? 'licensed'
-  const licenceNow = () => ({ state: licenceState, daysLeft: licenceState === 'trial' ? 12 : 0, trialDays: 30, name: licenceState === 'licensed' ? 'Ada Example' : null, problem: null })
+  let licenceState: 'licensed' | 'trial' | 'expired' | 'free' = opts.licence ?? 'licensed'
+  const licenceNow = (): import('./types').LicenceStatus => ({ state: licenceState, daysLeft: licenceState === 'trial' ? 12 : 0, trialDays: 30, name: licenceState === 'licensed' ? 'Ada Example' : null, problem: null })
   const auto = { settings: { on: true, everyDays: 1, keep: 7 }, list: [] as AutoBackup[] }
   const autoState = (): AutoBackupState => ({ settings: { ...auto.settings }, backups: [...auto.list], folder: 'C:/Lucent Raw/catalog/backups' })
   ;(window as unknown as { __restored?: string[] }).__restored = []
@@ -423,6 +425,8 @@ export function createMockApi(seedCount = 96, opts: MockOptions = {}): Api {
     appVersion: async () => '0.1.0-test18',
     updateCheck: async () => (opts.newerVersion ? { current: '0.1.0-test18', latest: opts.newerVersion, url: `https://github.com/Bennett-ttenneb/lucent-raw/releases/tag/v${opts.newerVersion}` } : { current: '0.1.0-test18', latest: null, url: null }),
     updateOpen: async () => undefined,
+    donateUrl: async () => (opts.donate ? 'https://www.paypal.com/donate/?business=example' : null),
+    donateOpen: async () => undefined,
     perfGet: async () => ({ threads: perfThreads, cores: 8, automatic: 8 }),
     perfSet: async (threads) => {
       perfThreads = Math.max(0, Math.min(32, Math.round(threads)))

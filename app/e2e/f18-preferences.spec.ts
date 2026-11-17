@@ -74,7 +74,7 @@ test.describe('F18 preferences', () => {
     await dlg.getByText('Privacy policy', { exact: true }).click()
     await expect(dlg.getByText(/bbotnicsindustries@gmail\.com/).first()).toBeVisible()
     await dlg.getByText('Terms and conditions', { exact: true }).click()
-    await expect(dlg.getByText(/A licence key is bought/)).toBeVisible()
+    await expect(dlg.getByText(/You may use the whole program, for as long as you like, without paying/)).toBeVisible()
     const list = dlg.getByRole('list', { name: 'What Lucent Raw is built with' })
     await expect(list.getByRole('listitem')).toHaveCount(7)
     await expect(list.getByText(/rawler for reading RAW files: LGPL-2\.1/)).toBeVisible()
@@ -101,6 +101,19 @@ test.describe('F18 preferences', () => {
     await expect(dlg3.getByRole('checkbox', { name: 'Look for a newer version when the program starts' })).not.toBeChecked()
     await dlg3.getByRole('button', { name: 'Check now' }).click()
     await expect(dlg3.getByText('Version 0.1.0-test99 is available.')).toBeVisible()
+  })
+
+  test('PF9 the Buy the developer a coffee button is in the header and under Licence when there is a donation page, and nowhere when there is not', async ({ page }) => {
+    // none by default
+    const dlg = await openPrefs(page)
+    await expect(page.getByRole('button', { name: /Buy the developer a coffee/ })).toHaveCount(0)
+    // a free program says so and asks for nothing: no key box
+    const free = await openPrefs(page, '?licence=free&donate=1')
+    await expect(free.getByText('Lucent Raw is free to use, and nothing is locked. No licence key is needed.')).toBeVisible()
+    await expect(free.getByRole('textbox', { name: 'Licence key' })).toHaveCount(0)
+    await expect(free.getByRole('button', { name: /Buy the developer a coffee/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Buy the developer a coffee/ })).toHaveCount(2) // the header and Preferences
+    expect(dlg).toBeTruthy()
   })
 
   test('PF7 the window has no accessibility violations', async ({ page }) => {

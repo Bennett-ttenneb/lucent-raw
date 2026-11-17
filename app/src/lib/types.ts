@@ -285,7 +285,7 @@ export interface CatalogBackup {
 }
 
 export interface LicenceStatus {
-  state: 'licensed' | 'trial' | 'expired'
+  state: 'licensed' | 'trial' | 'expired' | 'free'
   daysLeft: number
   trialDays: number
   name: string | null
@@ -962,6 +962,10 @@ export interface Api {
   updateCheck(): Promise<{ current: string; latest: string | null; url: string | null }>
   /** Show the page of that release in the web browser. */
   updateOpen(version: string): Promise<void>
+  /** The page the "Buy the developer a coffee" button opens, or null when there is none. */
+  donateUrl(): Promise<string | null>
+  /** Show that page in the web browser. */
+  donateOpen(): Promise<void>
   /** Compact the catalog; the file size before and after, in bytes. */
   catalogOptimize(): Promise<{ before: number; after: number }>
   /** Free and total bytes on the disk that holds a folder, or null when that cannot be found out. */

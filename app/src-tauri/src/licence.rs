@@ -19,6 +19,8 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+/// Lucent Raw is free: nothing is locked after the trial, and no key is needed. Set this to false to bring the 30 day trial back.
+pub const FREE: bool = true;
 pub const TRIAL_DAYS: i64 = 30;
 /// The seller's public key (see tools/licence.mjs). Replace it before the first sale if the private key is ever lost or shown.
 pub const PUBLIC_KEY: [u8; 32] = [81, 233, 225, 186, 37, 49, 253, 155, 84, 104, 112, 198, 63, 10, 119, 57, 193, 16, 189, 47, 89, 104, 82, 127, 88, 89, 230, 14, 36, 159, 218, 109];
@@ -122,7 +124,7 @@ pub fn save(path: &Path, f: &File) {
 /// Whether the program enforces the trial. A debug build (the one used while building the program) does not, unless asked to, so
 /// the developer is never locked out; every release build does.
 pub fn enforced() -> bool {
-    !cfg!(debug_assertions) || std::env::var("LUCENT_ENFORCE_LICENCE").map(|v| v == "1").unwrap_or(false)
+    !FREE && (!cfg!(debug_assertions) || std::env::var("LUCENT_ENFORCE_LICENCE").map(|v| v == "1").unwrap_or(false))
 }
 
 /// Remember whether editing is allowed, for the places that save an edit.
@@ -244,6 +246,8 @@ mod tests {
         assert!(gate(false).is_ok());
         assert!(gate(true).unwrap_err().contains("30 day trial has ended"));
         // a debug build is not locked unless asked (so building the program never locks the developer out)
-        assert_eq!(enforced(), !cfg!(debug_assertions) || std::env::var("LUCENT_ENFORCE_LICENCE").map(|v| v == "1").unwrap_or(false));
+        assert_eq!(enforced(), !FREE && (!cfg!(debug_assertions) || std::env::var("LUCENT_ENFORCE_LICENCE").map(|v| v == "1").unwrap_or(false)));
+        // the program is free: nothing is ever locked, whatever the trial says
+        assert!(FREE && !enforced());
     }
 }

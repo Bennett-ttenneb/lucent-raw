@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { api } from '../lib/api'
 import { usePrefs } from '../lib/prefs'
@@ -40,6 +40,23 @@ export const useUpdate = create<{
     }
   },
 }))
+
+/** The "Buy the developer a coffee" button. It opens the donation page in the web browser, and is not there when there is no page. */
+export function DonateButton({ small = false }: { small?: boolean }) {
+  const [url, setUrl] = useState<string | null>(null)
+  useEffect(() => {
+    api()
+      .donateUrl()
+      .then(setUrl)
+      .catch(() => undefined)
+  }, [])
+  if (!url) return null
+  return (
+    <button type="button" className={`btn ${small ? 'sm ' : ''}donate`} onClick={() => void api().donateOpen()} title="Opens the donation page in your web browser. Nothing is sent from the program.">
+      ☕ Buy the developer a coffee
+    </button>
+  )
+}
 
 /** A small button in the header when a newer version has been published. It opens that release's page in the web browser. */
 export function UpdateChip() {

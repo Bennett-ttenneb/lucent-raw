@@ -1,6 +1,6 @@
 # Lucent Raw: Privacy Policy
 
-Effective 17 November 2026. Applies to Lucent Raw version 0.1.0 and later.
+Effective 18 November 2026. Applies to Lucent Raw version 0.1.0 and later.
 
 **In short:** Lucent Raw runs on your computer and keeps everything there. It has no account, no cloud, no advertising and no usage tracking. Your photos, your edits and your catalog are never sent to us or to anyone else by the program. The one thing it does over the internet by itself is ask GitHub whether a newer version exists, and you can switch that off.
 
@@ -15,7 +15,7 @@ Everything below stays on your computer, in the program's own folders (the catal
 - **Your catalog:** a database listing your photos (their file locations, ratings, flags, labels, keywords, details you type such as title, caption and copyright, and the edits you make). Your original photo files are never changed.
 - **Previews:** small copies of your photos made so the grid and Develop are quick. They can be cleared and made again.
 - **Backups:** copies of the catalog the program makes by itself.
-- **Settings and your licence:** your preferences, saved filters and presets, and, if you enter one, your licence key.
+- **Settings:** your preferences, saved filters and presets. (Lucent Raw is free and needs no licence key; one that was entered in an earlier build is kept as it was.)
 - **Camera data in photos:** the program reads the information a camera writes into a photo (camera, lens, exposure settings, time, and where a photo was taken if the camera recorded it). It is shown to you and, when you choose, written into files you export. It goes nowhere else.
 - **A crash note:** if the program fails, it may write a short technical note (`crash.log`) in its folder. It is not sent anywhere. If you choose to send it to us to get help, you decide what to send.
 
@@ -28,13 +28,14 @@ Everything below stays on your computer, in the program's own folders (the catal
 - **What it does with the answer:** shows a small notice that a newer version exists. Nothing is downloaded or installed by itself; if you press the notice, the release page opens in your web browser.
 - **Switching it off:** Preferences > Updates > "Look for a newer version when the program starts". With it off the program contacts nothing at all, and "Check now" asks only when you press it.
 
-Apart from that, Lucent Raw does not contact any server: no analytics, no crash reports, no licence server. The licence key is checked on your computer, without internet.
+Apart from that, Lucent Raw does not contact any server: no analytics, no crash reports, no licence server.
 
 The AI features (denoise, subject and object selection, depth, enlarging, face finding, B BOT and the look score) use small models that are inside the program and run on your computer. Your photos are not sent to any AI service.
 
 ## 4. Things that can touch the network because you choose them
 
 - **AI connection (the plug button):** off until you switch it on. When on, it lets an assistant running **on your own computer** (such as Claude Code) work with your catalog. It listens only on your computer, needs a secret token, and refuses requests from web pages. What that assistant does with information it reads is governed by that assistant's own provider, not by Lucent Raw. If it is a cloud service, the photo names, captions and edits it reads may be sent to that service. Switch it off if you do not want that.
+- **The donate button:** it opens a PayPal page in your web browser. The program sends nothing to anyone when you press it. What you give and the details you give to PayPal are between you and PayPal, under PayPal's privacy statement, and we receive only what PayPal tells the developer about a payment.
 - **Files you export or share:** a file you export, email or upload leaves your computer because you sent it. Exported files can contain the details you chose to include (such as copyright and camera data).
 - **Printing:** when you print, your photos go to the printer or print service you pick.
 - **Your own backups and cloud folders:** if you keep your catalog or photos in a folder that a cloud service syncs (OneDrive, Dropbox and similar), that service copies them under its own terms. We advise keeping the catalog out of synced folders, because syncing can damage it.
