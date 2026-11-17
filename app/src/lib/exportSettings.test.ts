@@ -18,6 +18,10 @@ const CORE_DEFAULTS = {
   enlarge: 'none',
   cameraInfo: true,
   metadata: 'none',
+  canvasW: 0,
+  canvasH: 0,
+  canvasFit: 'crop',
+  canvasColour: [0, 0, 0],
   watermark: { kind: 'none', text: '© Your name', imagePath: '', anchor: 'bottomRight', size: 3, opacity: 70, margin: 2, colour: [255, 255, 255], shadow: true },
   border: { enabled: false, width: 4, colour: [255, 255, 255], caption: { show: false, camera: true, lens: true, focal: true, aperture: true, shutter: true, iso: true, date: false, note: '', layout: 'grouped', separator: 'dot', spacing: 2, weight: 'regular', size: 1.6 }, captionColour: null },
 }

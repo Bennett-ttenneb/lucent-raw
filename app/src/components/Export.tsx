@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { usePrefs, type AfterExportOpen } from '../lib/prefs'
 import { api } from '../lib/api'
-import { BUILTIN_EXPORT_PRESETS, DEFAULT_WATERMARK, colourOf, deleteUserPreset, edgeIsValid, exportProblem, folderProblem, hexOf, loadFolderPref, loadLastExport, loadUserPresets, matchingPreset, normaliseSettings, saveFolderPref, saveLastExport, saveUserPreset, type ExportPreset } from '../lib/exportSettings'
+import { BUILTIN_EXPORT_PRESETS, DEFAULT_WATERMARK, colourOf, deleteUserPreset, edgeIsValid, exportProblem, folderProblem, forPlatform, platformOf, hexOf, loadFolderPref, loadLastExport, loadUserPresets, matchingPreset, normaliseSettings, saveFolderPref, saveLastExport, saveUserPreset, type ExportPreset } from '../lib/exportSettings'
 import { plural } from '../lib/format'
 import { fillStyle } from './SliderRow'
 import { useStore } from '../lib/store'
-import { ANCHORS, COLOUR_SPACES, EXPORT_FORMATS, SIZE_MODES, type SizeMode, type Anchor, type ColourSpace, type ExportCaption, type ExportFormat, type ExportResult, type EnlargeMethod, type ExportSettings, type Progress, type SharpenFor } from '../lib/types'
+import { ANCHORS, COLOUR_SPACES, EXPORT_FORMATS, SIZE_MODES, SOCIAL_FRAMES, type SizeMode, type Anchor, type ColourSpace, type ExportCaption, type ExportFormat, type ExportResult, type EnlargeMethod, type ExportSettings, type Progress, type SharpenFor } from '../lib/types'
 import { Dialog, ProgressBar } from './Primitives'
 import { SliderRow } from './SliderRow'
 import { usePanels } from '../lib/panels'
@@ -257,6 +257,39 @@ export function ExportDialog() {
               Save as preset
             </button>
           </div>
+
+          <Section title="Social media" busy={busy}>
+            <div className="field-row">
+              <label className="lbl" htmlFor="platform">
+                Optimise for
+              </label>
+              <select id="platform" className="field" value={platformOf(settings)} disabled={busy} onChange={(e) => setSettings((s) => forPlatform(s, e.target.value))}>
+                <option value="">Nothing (use the size settings below)</option>
+                {SOCIAL_FRAMES.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {platformOf(settings) !== '' && (
+              <>
+                <div className="field-row">
+                  <label className="lbl" htmlFor="canvas-fit">
+                    Fit
+                  </label>
+                  <select id="canvas-fit" className="field" value={settings.canvasFit} disabled={busy} onChange={(e) => set({ canvasFit: e.target.value as 'crop' | 'pad' })}>
+                    <option value="crop">Fill the frame (crops the edges)</option>
+                    <option value="pad">Keep the whole photo (adds bars)</option>
+                  </select>
+                  {settings.canvasFit === 'pad' && <input type="color" aria-label="Bar colour" value={hexOf(settings.canvasColour)} disabled={busy} onChange={(e) => set({ canvasColour: colourOf(e.target.value) })} />}
+                </div>
+                <p className="hint">
+                  Every photo comes out exactly {settings.canvasW} × {settings.canvasH} px, as a high quality sRGB JPEG sharpened for the screen, with no camera details or place in the file. This replaces the size settings below. A border is drawn before the frame is fitted, so with Fill it can be cut at the edges; use Keep the whole photo with a border.
+                </p>
+              </>
+            )}
+          </Section>
 
           <Section title="File and size" busy={busy}>
           <div className="field-row">

@@ -819,9 +819,9 @@ export function createMockApi(seedCount = 96, opts: MockOptions = {}): Api {
       const days = db.map((p) => (p.captured ?? '').slice(0, 10)).filter(Boolean).sort()
       return { cameras: counted((p) => p.camera), lenses: counted((p) => p.lens), iso: span((p) => p.iso), focal: span((p) => p.focalMm), aperture: span((p) => p.aperture), days: days.length ? [days[0], days[days.length - 1]] : null }
     },
-    importList: async (source): Promise<ImportItem[]> => {
+    importList: async (source, subfolders = true): Promise<ImportItem[]> => {
       if (source.includes('Missing')) throw new Error('That folder does not exist.')
-      return demoList(source)
+      return demoList(source).filter((i) => subfolders || i.folder === '')
     },
     portraitDetect: async () => ({
       // three faces in a row, unless the test switched detection off

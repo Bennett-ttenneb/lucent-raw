@@ -12,6 +12,13 @@ test.describe('F01 import photos', () => {
     await expect(importBtn(page)).toBeDisabled()
     await dlg.getByRole('button', { name: 'Choose folder…' }).click()
     await expect(dlg.getByText(/Found 12 photos and 3 RAW files/)).toBeVisible()
+    // the two photos in the Day 2 folder go when sub-folders are left out, and come back when they are put in again
+    const sub = dlg.getByRole('checkbox', { name: 'Include photos in sub-folders' })
+    await expect(sub).toBeChecked()
+    await sub.uncheck()
+    await expect(dlg.getByText(/Found 10 photos and 3 RAW files/)).toBeVisible()
+    await sub.check()
+    await expect(dlg.getByText(/Found 12 photos and 3 RAW files/)).toBeVisible()
     await importBtn(page).click()
     await expect(dlg.getByText('Added 15 photos.')).toBeVisible()
     await dlg.getByRole('button', { name: 'Done' }).click()

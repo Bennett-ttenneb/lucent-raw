@@ -7,10 +7,12 @@ export interface ImportDefaults {
   devPreset: string
   metaPreset: string
   keywords: string
+  /** also bring in the photos in the folders inside the chosen folder */
+  subfolders: boolean
 }
 
 export const FOLDER_FORMATS: ImportDefaults['folderFormat'][] = ['YYYY-MM-DD', 'YYYY/MM/DD', 'YYYY/YYYY-MM-DD', 'YYYY-MM', 'YYYY', 'flat']
-export const START: ImportDefaults = { mode: 'add', nameTemplate: '{name}', folderFormat: 'YYYY-MM-DD', skipSuspected: false, devPreset: '', metaPreset: '', keywords: '' }
+export const START: ImportDefaults = { mode: 'add', nameTemplate: '{name}', folderFormat: 'YYYY-MM-DD', skipSuspected: false, devPreset: '', metaPreset: '', keywords: '', subfolders: true }
 const KEY = 'lucent.importDefaults'
 
 export function loadImportDefaults(): ImportDefaults {
@@ -26,6 +28,7 @@ export function loadImportDefaults(): ImportDefaults {
       devPreset: text(r.devPreset, '', 100),
       metaPreset: text(r.metaPreset, '', 100),
       keywords: text(r.keywords, '', 500),
+      subfolders: r.subfolders !== false,
     }
   } catch {
     return START

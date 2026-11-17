@@ -117,7 +117,7 @@ export const tauriApi: Api = {
     return typeof r === 'string' ? r : null
   },
   importScan: (source) => call('import_scan', { source }),
-  importList: (source) => call('import_list', { source }),
+  importList: (source, subfolders) => call('import_list', { source, subfolders: subfolders ?? true }),
   metadataValues: () => call('metadata_values'),
   portraitDetect: (id, recipe) => call('portrait_detect', { id, recipe }),
   importThumbUrl: (path) => `${THUMB}/source?p=${encodeURIComponent(path)}`,

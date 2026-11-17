@@ -4,13 +4,18 @@ Thank you for trying Lucent Raw. This is an early version (0.1). It is a RAW pho
 
 ## Before you start
 
-- **Windows 10 or 11, 64-bit.** There is no Mac or Linux version yet.
+- **Windows 10 or 11, 64-bit**, or **Linux** (a .deb and an AppImage are on the release page; Print and display profiles do not work there). There is no Mac version yet.
 - **The installer is not signed**, so Windows SmartScreen will say "Windows protected your PC". Choose **More info**, then **Run anyway**. It installs for your user only and needs no administrator rights.
 - **Your photos are never changed.** Edits are kept in the catalog, a small database inside the program's data folder. Even so, test on copies of photos you care about.
-- **It is a 30 day trial.** After 30 days editing stops until a licence key is entered (Preferences > Licence). You will be given a tester key that unlocks everything; the key is checked on your computer and needs no internet.
+- **It is free.** There is no trial and no licence key.
 - **Back up the catalog before updating**: Catalogs window > Automatic backups. The program does this by itself once a day and before any catalog upgrade.
 
-## New in this build (test 19)
+## New in this build (test 20)
+
+- **Export > Social media > Optimise for.** Pick Instagram (portrait 4:5, square or landscape), Story/Reel/TikTok 9:16, Facebook or LinkedIn, X, or Pinterest and every photo comes out at exactly that size, as a high quality sRGB JPEG sharpened for the screen, with no camera details or place in the file. **Fit** chooses between filling the frame (the edges are cropped, from the middle) and keeping the whole photo (bars of a colour you choose). The preview shows the result. Please try a few photos in each shape and tell me if the crop cuts a face or the colours look different on your phone.
+- **Import > Include photos in sub-folders.** On by default, as before. Untick it to bring in only the photos in the folder you chose. What you pick is remembered for next time.
+
+## Before that (test 19)
 
 - **Lucent Raw is free.** The 30 day trial and the licence key are gone: nothing is locked and no key is needed. (The trial and key code are still in the program, switched off.)
 - **"Buy the developer a coffee"** button in the header and in Preferences under Licence. It opens a PayPal donation page in your web browser; the program sends nothing. Giving is optional and buys nothing. (The page is made from the developer's PayPal address, so please try it and tell me if PayPal says it cannot take a donation.)

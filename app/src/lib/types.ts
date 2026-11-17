@@ -611,7 +611,24 @@ export interface ExportSettings {
   cameraInfo: boolean
   /** the details of the photo written into the file (JPEG and PNG): none, the copyright details, or everything (also title, caption, place, keywords) */
   metadata: 'none' | 'copyright' | 'all'
+  /** the frame in pixels (0 when none): the picture comes out exactly this size */
+  canvasW: number
+  canvasH: number
+  /** 'crop' fills the frame, 'pad' keeps the whole picture and fills the rest with canvasColour */
+  canvasFit: 'crop' | 'pad'
+  canvasColour: [number, number, number]
 }
+
+/** The frames social media platforms ask for. Sizes are what each platform shows without cutting or re-sizing them again. */
+export const SOCIAL_FRAMES: { id: string; name: string; w: number; h: number }[] = [
+  { id: 'ig-portrait', name: 'Instagram post, portrait 4:5 (1080 × 1350)', w: 1080, h: 1350 },
+  { id: 'ig-square', name: 'Instagram post, square (1080 × 1080)', w: 1080, h: 1080 },
+  { id: 'ig-landscape', name: 'Instagram post, landscape (1080 × 566)', w: 1080, h: 566 },
+  { id: 'story', name: 'Story, Reel or TikTok cover, 9:16 (1080 × 1920)', w: 1080, h: 1920 },
+  { id: 'facebook', name: 'Facebook or LinkedIn post (1200 × 627)', w: 1200, h: 627 },
+  { id: 'x', name: 'X (Twitter) post, 16:9 (1600 × 900)', w: 1600, h: 900 },
+  { id: 'pinterest', name: 'Pinterest pin, 2:3 (1000 × 1500)', w: 1000, h: 1500 },
+]
 
 /** One of the named ratios, or a ratio of your own written as two numbers with a colon, such as 7:5 or 2.35:1. */
 export type Aspect = (typeof ASPECTS)[number] | `${number}:${number}`
@@ -1000,7 +1017,7 @@ export interface Api {
   pickFolder(title: string): Promise<string | null>
   importScan(source: string): Promise<{ images: number; raw: number }>
   /** Every supported photo under a folder, for choosing which to import. */
-  importList(source: string): Promise<ImportItem[]>
+  importList(source: string, subfolders?: boolean): Promise<ImportItem[]>
   /** A small picture of one of those photos. */
   importThumbUrl(path: string): string
   /** The cameras, lenses and ranges in the catalog, for the Metadata filter. */

@@ -1658,7 +1658,7 @@ struct SourceItem {
 
 /// Every supported photo under a folder, for choosing which to import.
 #[tauri::command]
-async fn import_list(state: tauri::State<'_, AppState>, source: String) -> Result<Vec<SourceItem>, String> {
+async fn import_list(state: tauri::State<'_, AppState>, source: String, subfolders: Option<bool>) -> Result<Vec<SourceItem>, String> {
     let st = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         let p = PathBuf::from(&source);
@@ -1666,7 +1666,7 @@ async fn import_list(state: tauri::State<'_, AppState>, source: String) -> Resul
             return Err("That folder does not exist.".to_string());
         }
         *st.import_root.lock().map_err(|_| "busy".to_string())? = std::fs::canonicalize(&p).ok();
-        Ok(Catalog::list_files(&p)
+        Ok(Catalog::list_files_in(&p, subfolders.unwrap_or(true))
             .into_iter()
             .map(|f| SourceItem {
                 name: f.file_name().and_then(|n| n.to_str()).unwrap_or("?").to_string(),

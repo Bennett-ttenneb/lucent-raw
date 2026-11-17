@@ -16,12 +16,13 @@ import {
   type SharpenFor,
   type SizeMode,
   SIZE_MODES,
+  SOCIAL_FRAMES,
 } from './types'
 
 export const DEFAULT_WATERMARK: ExportWatermark = { kind: 'none', text: '© Your name', imagePath: '', anchor: 'bottomRight', size: 3, opacity: 70, margin: 2, colour: [255, 255, 255], shadow: true }
 export const DEFAULT_CAPTION: ExportCaption = { show: false, camera: true, lens: true, focal: true, aperture: true, shutter: true, iso: true, date: false, note: '', layout: 'grouped', separator: 'dot', spacing: 2, weight: 'regular', size: 1.6 }
 export const DEFAULT_BORDER: ExportBorder = { enabled: false, width: 4, colour: [255, 255, 255], caption: DEFAULT_CAPTION, captionColour: null }
-export const DEFAULT_EXPORT: ExportSettings = { format: 'jpeg', quality: 85, longEdge: 2048, sizeMode: 'longEdge', width: 2048, height: 2048, percent: 50, megapixels: 4, dpi: 300, colourSpace: 'srgb', nameTemplate: '{name}', sharpen: 'none', watermark: DEFAULT_WATERMARK, border: DEFAULT_BORDER, enlarge: 'none', cameraInfo: true, metadata: 'none' }
+export const DEFAULT_EXPORT: ExportSettings = { format: 'jpeg', quality: 85, longEdge: 2048, sizeMode: 'longEdge', width: 2048, height: 2048, percent: 50, megapixels: 4, dpi: 300, colourSpace: 'srgb', nameTemplate: '{name}', sharpen: 'none', watermark: DEFAULT_WATERMARK, border: DEFAULT_BORDER, enlarge: 'none', cameraInfo: true, metadata: 'none', canvasW: 0, canvasH: 0, canvasFit: 'crop', canvasColour: [0, 0, 0] }
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T
 const num = (v: unknown, lo: number, hi: number, d: number) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d)
@@ -55,6 +56,10 @@ export function normaliseSettings(raw: unknown): ExportSettings {
     enlarge: one<EnlargeMethod>(r.enlarge, ['none', 'smooth', 'ai'], d.enlarge),
     cameraInfo: bool(r.cameraInfo, d.cameraInfo),
     metadata: one(r.metadata, ['none', 'copyright', 'all'] as const, d.metadata),
+    canvasW: Math.round(num(r.canvasW, 0, 10000, 0)),
+    canvasH: Math.round(num(r.canvasH, 0, 10000, 0)),
+    canvasFit: one(r.canvasFit, ['crop', 'pad'] as const, 'crop'),
+    canvasColour: colour(r.canvasColour, d.canvasColour),
     watermark: {
       kind: one(w.kind, ['none', 'text', 'image'] as const, 'none'),
       text: text(w.text, DEFAULT_WATERMARK.text, 200),
@@ -94,6 +99,16 @@ export function normaliseSettings(raw: unknown): ExportSettings {
 
 /** Is the "longest side" box a whole number from 0 (keep the size) to 20000? An empty box is not 0. */
 export const edgeIsValid = (t: string) => t.trim() !== '' && Number.isInteger(Number(t)) && Number(t) >= 0 && Number(t) <= 20000
+
+/** Settings for a platform: its exact frame, an sRGB JPEG (what every platform shows), sharpened for the screen, with no camera details or place in the file. */
+export function forPlatform(s: ExportSettings, id: string): ExportSettings {
+  const f = SOCIAL_FRAMES.find((x) => x.id === id)
+  if (!f) return { ...s, canvasW: 0, canvasH: 0 }
+  return { ...s, canvasW: f.w, canvasH: f.h, format: 'jpeg', quality: 92, colourSpace: 'srgb', sharpen: 'screen', dpi: 72, cameraInfo: false, metadata: 'none' }
+}
+
+/** The id of the platform whose frame these settings have, or '' for none. */
+export const platformOf = (s: ExportSettings) => SOCIAL_FRAMES.find((f) => f.w === s.canvasW && f.h === s.canvasH)?.id ?? ''
 
 export const sameSettings = (a: ExportSettings, b: ExportSettings) => JSON.stringify(a) === JSON.stringify(b)
 

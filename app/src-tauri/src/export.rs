@@ -276,11 +276,17 @@ pub struct ExportSettings {
     /// The details of the photo written into the file (JPEG and PNG): "none" (the default), "copyright" (creator, copyright, credit, source,
     /// usage terms) or "all" (also title, caption, headline, place and keywords). Private keywords are never written.
     pub metadata: String,
+    /// A social media frame: when both are above 0 the picture comes out exactly this many pixels wide and high.
+    pub canvas_w: u32,
+    pub canvas_h: u32,
+    /// "crop" fills the frame and cuts what spills over (from the middle); "pad" keeps the whole picture and fills the rest with `canvas_colour`.
+    pub canvas_fit: String,
+    pub canvas_colour: [u8; 3],
 }
 
 impl Default for ExportSettings {
     fn default() -> Self {
-        ExportSettings { format: Format::Jpeg, quality: 85, long_edge: 2048, size_mode: SizeMode::LongEdge, width: 2048, height: 2048, percent: 50.0, megapixels: 4.0, dpi: 300, colour_space: "srgb".into(), name_template: "{name}".into(), sharpen: Sharpen::None, watermark: Watermark::default(), border: Border::default(), enlarge: Enlarge::None, camera_info: true, metadata: "none".into() }
+        ExportSettings { format: Format::Jpeg, quality: 85, long_edge: 2048, size_mode: SizeMode::LongEdge, width: 2048, height: 2048, percent: 50.0, megapixels: 4.0, dpi: 300, colour_space: "srgb".into(), name_template: "{name}".into(), sharpen: Sharpen::None, watermark: Watermark::default(), border: Border::default(), enlarge: Enlarge::None, camera_info: true, metadata: "none".into(), canvas_w: 0, canvas_h: 0, canvas_fit: "crop".into(), canvas_colour: [0, 0, 0] }
     }
 }
 
@@ -299,6 +305,12 @@ pub enum SizeMode {
 pub fn export_long_edge(s: &ExportSettings, w: u32, h: u32) -> u32 {
     let (w, h) = (w.max(1) as f64, h.max(1) as f64);
     let long = w.max(h);
+    if s.canvas_w > 0 && s.canvas_h > 0 {
+        // a social media frame: big enough to fill it (crop) or small enough to sit inside it (pad)
+        let (kx, ky) = (s.canvas_w as f64 / w, s.canvas_h as f64 / h);
+        let k = if s.canvas_fit == "pad" { kx.min(ky) } else { kx.max(ky) };
+        return ((long * k).round() as u32).clamp(1, 20000);
+    }
     let side = match s.size_mode {
         SizeMode::LongEdge => return s.long_edge,
         SizeMode::Dimensions => {
@@ -326,6 +338,11 @@ impl ExportSettings {
         s.long_edge = s.long_edge.min(20000);
         s.width = s.width.min(20000);
         s.height = s.height.min(20000);
+        s.canvas_w = s.canvas_w.min(10000);
+        s.canvas_h = s.canvas_h.min(10000);
+        if s.canvas_fit != "pad" {
+            s.canvas_fit = "crop".into();
+        }
         s.percent = c(s.percent, 1.0, 1000.0, 50.0);
         s.megapixels = c(s.megapixels, 0.1, 500.0, 4.0);
         s.dpi = s.dpi.clamp(crate::dpi::MIN_DPI, crate::dpi::MAX_DPI);
@@ -701,7 +718,34 @@ pub fn add_border(img: &RgbImage, b: &Border, meta: &Meta) -> Result<RgbImage, S
 pub fn finish(img: RgbImage, meta: &Meta, s: &ExportSettings) -> Result<RgbImage, String> {
     let mut img = sharpen_output(&img, s.sharpen);
     apply_watermark(&mut img, &s.watermark)?;
-    add_border(&img, &s.border, meta)
+    Ok(fit_canvas(add_border(&img, &s.border, meta)?, s))
+}
+
+/// The exact frame a social media platform wants. "crop" scales the picture to cover the frame and cuts the overflow from the middle;
+/// "pad" scales it to fit inside and fills the rest with the chosen colour. Does nothing when no frame is asked for.
+pub fn fit_canvas(img: RgbImage, s: &ExportSettings) -> RgbImage {
+    let (cw, ch) = (s.canvas_w, s.canvas_h);
+    if cw == 0 || ch == 0 {
+        return img;
+    }
+    let (w, h) = img.dimensions();
+    let pad = s.canvas_fit == "pad";
+    let (kx, ky) = (cw as f32 / w as f32, ch as f32 / h as f32);
+    let k = if pad { kx.min(ky) } else { kx.max(ky) };
+    let (nw, nh) = (((w as f32 * k).round() as u32).max(1), ((h as f32 * k).round() as u32).max(1));
+    let scaled = if (nw, nh) == (w, h) { img } else { image::imageops::resize(&img, nw, nh, image::imageops::FilterType::Lanczos3) };
+    if pad {
+        let mut out = RgbImage::from_pixel(cw, ch, image::Rgb(s.canvas_colour));
+        image::imageops::overlay(&mut out, &scaled, ((cw.saturating_sub(nw)) / 2) as i64, ((ch.saturating_sub(nh)) / 2) as i64);
+        out
+    } else {
+        let (x, y) = ((nw.saturating_sub(cw)) / 2, (nh.saturating_sub(ch)) / 2);
+        let mut out = image::imageops::crop_imm(&scaled, x, y, cw.min(nw), ch.min(nh)).to_image();
+        if out.dimensions() != (cw, ch) {
+            out = image::imageops::resize(&out, cw, ch, image::imageops::FilterType::Triangle); // only by a rounding pixel
+        }
+        out
+    }
 }
 
 // ---- writing the file ---------------------------------------------------------------------------------------
@@ -1063,6 +1107,26 @@ pub fn folder_name(raw: &str) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_social_media_frame_comes_out_exactly_that_size_cropped_or_padded() {
+        let img = RgbImage::from_pixel(4000, 3000, image::Rgb([200, 50, 50]));
+        let frame = |fit: &str| ExportSettings { canvas_w: 1080, canvas_h: 1350, canvas_fit: fit.into(), canvas_colour: [0, 0, 255], ..ExportSettings::default() };
+        // the picture is sized to cover (crop) or fit inside (pad) before it is framed
+        assert_eq!(export_long_edge(&frame("crop"), 4000, 3000), 1800, "3000 high must become 1350: 4000 wide becomes 1800");
+        assert_eq!(export_long_edge(&frame("pad"), 4000, 3000), 1080, "4000 wide must become 1080");
+        let crop = fit_canvas(img.clone(), &frame("crop"));
+        assert_eq!(crop.dimensions(), (1080, 1350));
+        assert_eq!(crop.get_pixel(540, 675).0, [200, 50, 50], "all picture, no bars");
+        let pad = fit_canvas(img.clone(), &frame("pad"));
+        assert_eq!(pad.dimensions(), (1080, 1350));
+        assert_eq!(pad.get_pixel(540, 10).0, [0, 0, 255], "bars above");
+        assert_eq!(pad.get_pixel(540, 675).0, [200, 50, 50], "the whole picture in the middle");
+        // a portrait picture into a story frame, and a frame left off changing nothing
+        let tall = RgbImage::from_pixel(1500, 2000, image::Rgb([9, 9, 9]));
+        assert_eq!(fit_canvas(tall.clone(), &ExportSettings { canvas_w: 1080, canvas_h: 1920, ..ExportSettings::default() }).dimensions(), (1080, 1920));
+        assert_eq!(fit_canvas(tall, &ExportSettings::default()).dimensions(), (1500, 2000));
+    }
 
     #[test]
     fn a_new_folder_name_makes_one_folder_and_nothing_else() {
@@ -1699,7 +1763,7 @@ mod tests {
     #[test]
     fn the_starting_settings_are_the_ones_the_page_starts_with() {
         let expected = serde_json::json!({
-            "format": "jpeg", "quality": 85, "longEdge": 2048, "sizeMode": "longEdge", "width": 2048, "height": 2048, "percent": 50.0, "megapixels": 4.0, "dpi": 300, "colourSpace": "srgb", "nameTemplate": "{name}", "sharpen": "none", "enlarge": "none", "cameraInfo": true, "metadata": "none",
+            "format": "jpeg", "quality": 85, "longEdge": 2048, "sizeMode": "longEdge", "width": 2048, "height": 2048, "percent": 50.0, "megapixels": 4.0, "dpi": 300, "colourSpace": "srgb", "nameTemplate": "{name}", "sharpen": "none", "enlarge": "none", "cameraInfo": true, "metadata": "none", "canvasW": 0, "canvasH": 0, "canvasFit": "crop", "canvasColour": [0, 0, 0],
             "watermark": { "kind": "none", "text": "© Your name", "imagePath": "", "anchor": "bottomRight", "size": 3.0, "opacity": 70.0, "margin": 2.0, "colour": [255, 255, 255], "shadow": true },
             "border": { "enabled": false, "width": 4.0, "colour": [255, 255, 255],
                 "caption": { "show": false, "camera": true, "lens": true, "focal": true, "aperture": true, "shutter": true, "iso": true, "date": false, "note": "", "layout": "grouped", "separator": "dot", "spacing": 2, "weight": "regular", "size": 1.6_f32 },

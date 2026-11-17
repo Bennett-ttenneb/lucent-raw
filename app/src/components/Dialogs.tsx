@@ -86,6 +86,7 @@ export function ImportDialog() {
   const [folderFormat, setFolderFormat] = useState<ImportOptions['folderFormat']>(start.folderFormat)
   const [dest, setDest] = useState<string | null>(null)
   const [skipSuspected, setSkipSuspected] = useState(start.skipSuspected)
+  const [subfolders, setSubfolders] = useState(start.subfolders)
   const [seqStart, setSeqStart] = useState(1)
   const [savedPatterns, setSavedPatterns] = useState<string[]>(loadPatterns)
   /** put on every photo that is added: a develop preset (by name), a details preset (by name) and keywords (comma separated, "Parent > Child" for a keyword inside another) */
@@ -150,12 +151,12 @@ export function ImportDialog() {
     if (!p) return
     await load(p)
   }
-  const load = async (p: string) => {
+  const load = async (p: string, sub = subfolders) => {
     setError(null)
     setSource(p)
     setResult(null)
     try {
-      const list = await api().importList(p)
+      const list = await api().importList(p, sub)
       setItems(list)
       setPicked(new Set(list.map((i) => i.path))) // everything ticked to start with; untick what is not wanted
       anchor.current = null
@@ -189,7 +190,7 @@ export function ImportDialog() {
       const opts = mode === 'add' && !skipSuspected ? undefined : { nameTemplate: mode === 'add' || nameTemplate.trim() === '' ? '{name}' : nameTemplate, folderFormat, skipSuspected, seqStart: Math.max(1, Math.round(seqStart) || 1), embedOriginal: mode === 'copy_dng' && embedOriginal }
       const r = await api().importRun(source, mode, mode === 'add' ? null : dest, files, opts)
       setResult(r)
-      saveImportDefaults({ mode, nameTemplate: nameTemplate.trim() === '' ? '{name}' : nameTemplate, folderFormat, skipSuspected, devPreset, metaPreset: metaPresetName, keywords: keywordText })
+      saveImportDefaults({ mode, nameTemplate: nameTemplate.trim() === '' ? '{name}' : nameTemplate, folderFormat, skipSuspected, subfolders, devPreset, metaPreset: metaPresetName, keywords: keywordText })
       if (usePrefs.getState().smartOnImport && (r.addedIds?.length ?? 0) > 0) void api().smartBuild(r.addedIds).catch(() => undefined) // in the background
       const notes = await putOnImported(r.addedIds ?? [], devPreset, metaPresetName, keywordText)
       await useStore.getState().reload()
@@ -216,6 +217,20 @@ export function ImportDialog() {
           <span className="path" title={source ?? ''}>
             {source ?? 'Nothing chosen yet'}
           </span>
+        </div>
+        <div className="field-row">
+          <label>
+            <input
+              type="checkbox"
+              checked={subfolders}
+              disabled={busy || !!result}
+              onChange={(e) => {
+                setSubfolders(e.target.checked)
+                if (source) void load(source, e.target.checked)
+              }}
+            />{' '}
+            Include photos in sub-folders
+          </label>
         </div>
         {cards.length > 0 && !busy && !result && (
           <div className="field-row" role="group" aria-label="Memory cards">

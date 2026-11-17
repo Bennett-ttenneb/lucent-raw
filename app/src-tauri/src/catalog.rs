@@ -550,8 +550,16 @@ impl Catalog {
     }
 
     pub fn list_files(source: &Path) -> Vec<PathBuf> {
-        let mut v: Vec<PathBuf> = WalkDir::new(source)
-            .follow_links(false)
+        Self::list_files_in(source, true)
+    }
+
+    /// The supported photos in a folder, and with `subfolders` also those in every folder inside it.
+    pub fn list_files_in(source: &Path, subfolders: bool) -> Vec<PathBuf> {
+        let mut walk = WalkDir::new(source).follow_links(false);
+        if !subfolders {
+            walk = walk.max_depth(1);
+        }
+        let mut v: Vec<PathBuf> = walk
             .into_iter()
             .filter_map(|e| e.ok())
             .filter(|e| e.file_type().is_file() && media::kind_of(e.path()).is_some())
@@ -3285,6 +3293,19 @@ mod tests {
         assert_eq!(again.duplicates, 3);
         // originals untouched
         assert!(src.path().join("a.jpg").exists());
+    }
+
+    #[test]
+    fn a_folder_can_be_listed_with_or_without_the_folders_inside_it() {
+        let src = tempfile::tempdir().unwrap();
+        fs::create_dir(src.path().join("Day 2")).unwrap();
+        fs::write(src.path().join("a.jpg"), b"x").unwrap();
+        fs::write(src.path().join("Day 2").join("b.jpg"), b"x").unwrap();
+        assert_eq!(Catalog::list_files_in(src.path(), true).len(), 2);
+        let top = Catalog::list_files_in(src.path(), false);
+        assert_eq!(top.len(), 1);
+        assert!(top[0].ends_with("a.jpg"));
+        assert_eq!(Catalog::list_files(src.path()).len(), 2, "the usual listing still goes into sub-folders");
     }
 
     #[test]
