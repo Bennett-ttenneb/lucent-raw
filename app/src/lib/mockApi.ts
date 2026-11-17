@@ -18,6 +18,8 @@ export interface MockOptions {
   failWrites?: boolean
   /** Make the face detector find nothing. */
   noFaces?: boolean
+  /** a newer version that the update check finds (none by default) */
+  newerVersion?: string
   /** switching the AI connection on fails (the browser tests use ?mcpfail=1) */
   mcpFail?: boolean
   /** making a book PDF fails (the browser tests use ?bookfail=1) */
@@ -418,6 +420,9 @@ export function createMockApi(seedCount = 96, opts: MockOptions = {}): Api {
     },
     catalogLastBackup: async () => lastBackup,
     licenceStatus: async () => licenceNow(),
+    appVersion: async () => '0.1.0-test18',
+    updateCheck: async () => (opts.newerVersion ? { current: '0.1.0-test18', latest: opts.newerVersion, url: `https://github.com/Bennett-ttenneb/lucent-raw/releases/tag/v${opts.newerVersion}` } : { current: '0.1.0-test18', latest: null, url: null }),
+    updateOpen: async () => undefined,
     perfGet: async () => ({ threads: perfThreads, cores: 8, automatic: 8 }),
     perfSet: async (threads) => {
       perfThreads = Math.max(0, Math.min(32, Math.round(threads)))

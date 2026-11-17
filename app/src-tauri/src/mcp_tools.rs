@@ -300,6 +300,12 @@ impl LumoraTools {
         let ids = ids_arg(a, "ids", 200)?;
         let destination = str_arg(a, "destination").ok_or("\"destination\" (an existing folder) is needed.")?;
         let mut dest = std::path::PathBuf::from(&destination);
+        // a full path on this computer only: a relative path lands wherever the program happens to be running, and a network
+        // share would send the pictures (and the Windows sign-in that goes with the request) to another machine
+        let remote = destination.starts_with(r"\\") || destination.starts_with("//");
+        if remote || !dest.is_absolute() {
+            return Err(r#""destination" must be the full path of a folder on this computer (for example C:\Users\you\Pictures\out), not a network share or a relative path."#.into());
+        }
         if !dest.is_dir() {
             return Err(format!("\"{destination}\" is not a folder that exists."));
         }
@@ -512,6 +518,11 @@ mod tests {
         let out = s.out.clone();
         let r = call(&s, "export_photos", json!({"ids": s.ids, "destination": out.to_str().unwrap(), "new_folder": "AI export", "format": "png", "long_edge": 200})).unwrap();
         assert_eq!((r["written"].as_i64(), r["failed"].as_array().unwrap().len()), (Some(3), 0));
+        // a network share or a relative path is not a place to export to
+        for bad in [r"\\127.0.0.1\c$\temp", "//server/share", "..", "out"] {
+            let e = call(&s, "export_photos", json!({"ids": s.ids, "destination": bad, "format": "png"})).unwrap_err();
+            assert!(e.contains("full path"), "{bad}: {e}");
+        }
         let folder = out.join("AI export");
         assert_eq!(std::fs::read_dir(&folder).unwrap().count(), 3);
         for f in std::fs::read_dir(&folder).unwrap() {

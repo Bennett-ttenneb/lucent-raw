@@ -956,6 +956,12 @@ export interface Api {
   /** When the open catalog was last backed up ("2026-10-18 15:30"), or null if never. */
   catalogLastBackup(): Promise<string | null>
   licenceStatus(): Promise<LicenceStatus>
+  /** The version of this copy, as the installer names it. */
+  appVersion(): Promise<string>
+  /** Ask GitHub whether a newer version has been published. `latest` is set only when there is one. */
+  updateCheck(): Promise<{ current: string; latest: string | null; url: string | null }>
+  /** Show the page of that release in the web browser. */
+  updateOpen(version: string): Promise<void>
   /** Compact the catalog; the file size before and after, in bytes. */
   catalogOptimize(): Promise<{ before: number; after: number }>
   /** Free and total bytes on the disk that holds a folder, or null when that cannot be found out. */

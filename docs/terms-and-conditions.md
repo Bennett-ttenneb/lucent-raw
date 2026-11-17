@@ -51,7 +51,7 @@ If you switch on the AI connection, an assistant on your own computer can read y
 
 ## 9. Updates and support
 
-The program never updates itself: you choose whether to install a newer version, and the earlier version stays installable. We try to help with problems you report by email, but we do not promise a response time, that every fault will be fixed, or that the program will be developed for any length of time.
+The program never updates itself. It can look on GitHub for a newer version when it starts (you can switch this off in Preferences) and tell you when there is one; you choose whether to install it, and the earlier version stays installable. We try to help with problems you report by email, but we do not promise a response time, that every fault will be fixed, or that the program will be developed for any length of time.
 
 ## 10. No warranty
 

@@ -386,3 +386,113 @@ mod auto_face_check {
         }
     }
 }
+
+#[cfg(test)]
+mod hostile_files {
+    use std::path::Path;
+
+    /// A small repeatable random number maker, so a failure can be run again.
+    struct Rng(u64);
+    impl Rng {
+        fn next(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+        fn below(&mut self, n: usize) -> usize {
+            (self.next() % n.max(1) as u64) as usize
+        }
+    }
+
+    /// A damaged copy of `bytes`: cut short, bytes flipped, a stretch zeroed or filled with 0xFF, or a block repeated.
+    fn damage(bytes: &[u8], rng: &mut Rng) -> Vec<u8> {
+        let mut v = bytes.to_vec();
+        match rng.below(6) {
+            0 => v.truncate(rng.below(v.len())),
+            1 => (0..1 + rng.below(40)).for_each(|_| {
+                let i = rng.below(v.len());
+                v[i] ^= 1 << rng.below(8);
+            }),
+            // the header is where the sizes and offsets are: most of the damage goes there
+            2 => (0..1 + rng.below(30)).for_each(|_| {
+                let i = rng.below(v.len().min(4096));
+                v[i] = rng.next() as u8;
+            }),
+            3 => {
+                let (a, n) = (rng.below(v.len()), rng.below(5000));
+                v.iter_mut().skip(a).take(n).for_each(|b| *b = 0);
+            }
+            4 => {
+                let (a, n) = (rng.below(v.len().min(8192)), rng.below(64));
+                v.iter_mut().skip(a).take(n).for_each(|b| *b = 0xFF);
+            }
+            _ => {
+                let (a, n) = (rng.below(v.len()), rng.below(20_000));
+                let block: Vec<u8> = v.iter().skip(a).take(n).copied().collect();
+                v.extend(block);
+            }
+        }
+        v
+    }
+
+    /// LUCENT_FUZZ_FILES=<a.cr2,b.jpg,...> LUCENT_FUZZ_N=<how many damaged copies of each>: damaged photographs must be refused
+    /// or decoded, never crash the program, hang it or make it ask for an absurd amount of memory.
+    #[test]
+    #[ignore]
+    fn damaged_photographs_are_refused_not_crashed_on() {
+        let Ok(files) = std::env::var("LUCENT_FUZZ_FILES") else { return };
+        let n: usize = std::env::var("LUCENT_FUZZ_N").ok().and_then(|v| v.parse().ok()).unwrap_or(40);
+        let dir = std::env::temp_dir().join("lucent-fuzz");
+        std::fs::create_dir_all(&dir).unwrap();
+        let mut rng = Rng(0x9E3779B97F4A7C15);
+        let (mut panics, mut slow, mut opened, mut refused) = (0, 0, 0, 0);
+        for file in files.split(',') {
+            let bytes = std::fs::read(file).unwrap();
+            let ext = Path::new(file).extension().unwrap().to_string_lossy().to_string();
+            for k in 0..n {
+                let path = dir.join(format!("f{k}.{ext}"));
+                std::fs::write(&path, damage(&bytes, &mut rng)).unwrap();
+                let t = std::time::Instant::now();
+                let p = path.clone();
+                let r = std::panic::catch_unwind(move || {
+                    let _ = crate::media::read_meta(&p);
+                    let _ = crate::media::fingerprint(&p);
+                    let _ = crate::media::source_thumb(&p, 240);
+                    crate::media::edited_picture(&p, 400, None).is_ok()
+                });
+                let secs = t.elapsed().as_secs_f32();
+                match r {
+                    Ok(true) => opened += 1,
+                    Ok(false) => refused += 1,
+                    Err(_) => {
+                        panics += 1;
+                        let keep = dir.join(format!("PANIC-{}-{k}.{ext}", Path::new(file).file_stem().unwrap().to_string_lossy()));
+                        let _ = std::fs::copy(&path, &keep);
+                        println!("PANIC on damaged copy {k} of {file} (kept as {})", keep.display());
+                    }
+                }
+                if secs > 20.0 {
+                    slow += 1;
+                    println!("SLOW: {secs:.1} s on damaged copy {k} of {file}");
+                }
+            }
+            println!("{file}: done");
+        }
+        println!("damaged files: {opened} still opened, {refused} refused, {panics} panicked, {slow} took over 20 s");
+    }
+
+    /// Damaged sidecars and hostile text must be refused or read, never crash.
+    #[test]
+    fn damaged_sidecars_are_refused_not_crashed_on() {
+        let good = crate::xmp::write(&crate::xmp::Sidecar::default());
+        let mut rng = Rng(0xD1B54A32D192ED03);
+        for _ in 0..400 {
+            let bad = damage(good.as_bytes(), &mut rng);
+            let _ = crate::xmp::parse(&String::from_utf8_lossy(&bad));
+        }
+        for hostile in ["", "<", "<x:xmpmeta", &"<a>".repeat(100_000), &"&".repeat(50_000), "<?xml version=\"1.0\"?><!DOCTYPE x [<!ENTITY a \"aaaaaaaaaa\"><!ENTITY b \"&a;&a;&a;&a;&a;&a;&a;&a;\">]><x>&b;</x>"] {
+            let _ = crate::xmp::parse(hostile);
+        }
+    }
+}

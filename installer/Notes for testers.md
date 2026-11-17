@@ -10,7 +10,13 @@ Thank you for trying Lucent Raw. This is an early version (0.1). It is a RAW pho
 - **It is a 30 day trial.** After 30 days editing stops until a licence key is entered (Preferences > Licence). You will be given a tester key that unlocks everything; the key is checked on your computer and needs no internet.
 - **Back up the catalog before updating**: Catalogs window > Automatic backups. The program does this by itself once a day and before any catalog upgrade.
 
-## New in this build (test 17)
+## New in this build (test 18)
+
+- **The program now tells you when a newer version is out.** When it starts (and you are online) it asks GitHub for the list of releases and shows a small notice in the header if there is a newer one; pressing it opens the release page in your web browser. Nothing is downloaded or installed by itself, and nothing about you or your photos is sent. It can be switched off in Preferences > Updates, where there is also a Check now button. The privacy policy and terms describe it.
+- **Preferences > About now shows the exact build** (for example 0.1.0-test18).
+- **Security testing:** a damaged sidecar file could crash the program (a stack overflow); damaged sidecars are now refused. The local AI connection's export no longer accepts a network share or a relative folder. 120 deliberately damaged RAW and JPEG files, the picture protocol and the AI connection were also tested hard and held.
+
+## Before that (test 17)
 
 - **Pimples, moles and specks are now removed.** In test 16 spots on the cheeks were left in: a safety margin switched the retouch off over much of the lower face. Spots lighter, darker or redder than the skin right round them are healed, and each is filled with the grain of clean skin beside it, so it does not look smoothed over. Beads, lashes, lips and glasses are left alone.
 - **Lips and brows:** a new panel in Retouch, Lip colour and Eyebrows. Auto retouch uses a little of both.

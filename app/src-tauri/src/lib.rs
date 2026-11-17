@@ -33,6 +33,7 @@ mod cull;
 mod export;
 mod faces;
 mod portrait;
+mod update;
 mod parsing;
 mod redeye;
 mod spots;
@@ -2304,6 +2305,33 @@ struct SyncOut {
     removed: usize,
 }
 
+/// The version of this copy, as the installer names it (for example 0.1.0-test18).
+#[tauri::command]
+fn app_version(app: tauri::AppHandle) -> String {
+    app.package_info().version.to_string()
+}
+
+/// Ask GitHub whether a newer version has been published. Nothing is downloaded or installed.
+#[tauri::command]
+async fn update_check(app: tauri::AppHandle) -> Result<update::Update, String> {
+    let current = app.package_info().version.to_string();
+    tauri::async_runtime::spawn_blocking(move || update::check(&current)).await.map_err(|e| e.to_string())?
+}
+
+/// Show the page of a release in the person's web browser. Only a release of Lucent Raw can be opened: the address is built
+/// here from the version, which must be nothing but a version.
+#[tauri::command]
+fn update_open(version: String) -> Result<(), String> {
+    let url = update::release_url(&version).ok_or("That is not a version of Lucent Raw.")?;
+    #[cfg(target_os = "windows")]
+    let program = "explorer";
+    #[cfg(target_os = "macos")]
+    let program = "open";
+    #[cfg(all(unix, not(target_os = "macos")))]
+    let program = "xdg-open";
+    std::process::Command::new(program).arg(url).spawn().map(|_| ()).map_err(|e| format!("The page could not be opened: {e}"))
+}
+
 /// What synchronising this folder would do: the files on the disk the catalog does not have, and the photos whose files are gone.
 #[tauri::command]
 fn folder_sync_preview(state: tauri::State<'_, AppState>, folder_id: i64) -> Result<catalog::SyncPreview, String> {
@@ -3158,6 +3186,9 @@ pub fn run() {
             photo_delete_from_disk,
             photo_relink,
             folder_sync_preview,
+            app_version,
+            update_check,
+            update_open,
             folder_sync_run,
             photo_rename_copy,
             import_cards,

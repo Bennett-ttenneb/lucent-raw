@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { usePrefs } from '../lib/prefs'
 import { LicenceChip } from './Licence'
+import { UpdateChip } from './Update'
 import { SavedFilters } from './SavedFilters'
 import { fillStyle } from './SliderRow'
 import { api } from '../lib/api'
@@ -92,6 +93,7 @@ export function ModuleBar() {
         ))}
       </nav>
       <div className="modbar-end">
+        <UpdateChip />
         <LicenceChip />
         <ThemeButton />
         <button type="button" className="help-btn ai-btn" aria-label="Preferences" title="Preferences" onClick={() => useStore.setState({ preferencesOpen: true })}>

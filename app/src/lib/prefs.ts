@@ -18,6 +18,16 @@ function load(): ReminderDays {
   return 30
 }
 
+const UPDATE_KEY = 'lucent.checkUpdates'
+/** Whether to look for a newer version at start. On unless the person switched it off. */
+function loadCheckUpdates(): boolean {
+  try {
+    return localStorage.getItem(UPDATE_KEY) !== '0'
+  } catch {
+    return true
+  }
+}
+
 const AI_KEY = 'lucent.hideAi'
 function loadHideAi(): boolean {
   try {
@@ -160,6 +170,9 @@ export const usePrefs = create<{
   setReminderDays(d: ReminderDays): void
   hideAi: boolean
   setHideAi(on: boolean): void
+  /** Look for a newer version on GitHub when the program starts. */
+  checkUpdates: boolean
+  setCheckUpdates(on: boolean): void
   /** The program "Open in external editor" uses: the full path of its .exe, or empty for Windows' own choice. */
   externalEditor: string
   setExternalEditor(path: string): void
@@ -315,6 +328,15 @@ export const usePrefs = create<{
   },
   reminderDays: load(),
   hideAi: loadHideAi(),
+  checkUpdates: loadCheckUpdates(),
+  setCheckUpdates(on) {
+    set({ checkUpdates: on })
+    try {
+      localStorage.setItem(UPDATE_KEY, on ? '1' : '0')
+    } catch {
+      /* the choice just lasts for this session */
+    }
+  },
   setHideAi(on) {
     set({ hideAi: on })
     try {

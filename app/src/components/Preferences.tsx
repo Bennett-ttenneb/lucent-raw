@@ -13,6 +13,7 @@ import { plural } from '../lib/format'
 import { useStore } from '../lib/store'
 import type { CacheInfo, CatalogDetails, DisplayProfile, PerfState, Progress } from '../lib/types'
 import { Dialog, ProgressBar } from './Primitives'
+import { UpdateSection, useUpdate } from './Update'
 import privacyPolicy from '../../../docs/privacy-policy.md?raw'
 import terms from '../../../docs/terms-and-conditions.md?raw'
 
@@ -34,6 +35,7 @@ export const PREFERENCE_KEYS = [
   'penumbra.cropGrid',
   'penumbra.viewOptions',
   'lucent.hideAi',
+  'lucent.checkUpdates',
   'lucent.externalEditor',
   'lucent.threads',
   'lucent.checkMissing',
@@ -81,6 +83,7 @@ const REMINDER_NAMES: Record<number, string> = { 7: 'After a week', 30: 'After a
  */
 export function PreferencesDialog() {
   const hideAi = usePrefs((s) => s.hideAi)
+  const version = useUpdate((s) => s.version) // the installer's own name for this copy, such as 0.1.0-test18
   const editor = usePrefs((s) => s.externalEditor)
   const threads = usePrefs((s) => s.threads)
   const cardAction = usePrefs((s) => s.cardAction)
@@ -620,10 +623,12 @@ export function PreferencesDialog() {
 
         <LicenceSection open={open} />
 
+        <UpdateSection />
+
         <fieldset className="export-group">
           <legend>About</legend>
           <p>
-            <strong>Lucent Raw</strong> version {APP_VERSION}. Your catalog is kept in <span className="path">{catalogPath ?? '…'}</span>.
+            <strong>Lucent Raw</strong> version {version ?? APP_VERSION}. Your catalog is kept in <span className="path">{catalogPath ?? '…'}</span>.
           </p>
           <p className="hint">Built with other people's work. The main parts and their licences:</p>
           <ul className="plain-list" aria-label="What Lucent Raw is built with">

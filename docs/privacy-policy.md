@@ -1,8 +1,8 @@
 # Lucent Raw: Privacy Policy
 
-Effective 5 November 2026. Applies to Lucent Raw version 0.1.0 and later.
+Effective 17 November 2026. Applies to Lucent Raw version 0.1.0 and later.
 
-**In short:** Lucent Raw runs on your computer and keeps everything there. It has no account, no cloud, no advertising and no usage tracking. Your photos, your edits and your catalog are never sent to us or to anyone else by the program.
+**In short:** Lucent Raw runs on your computer and keeps everything there. It has no account, no cloud, no advertising and no usage tracking. Your photos, your edits and your catalog are never sent to us or to anyone else by the program. The one thing it does over the internet by itself is ask GitHub whether a newer version exists, and you can switch that off.
 
 ## 1. Who we are
 
@@ -21,7 +21,14 @@ Everything below stays on your computer, in the program's own folders (the catal
 
 ## 3. What is sent over the internet
 
-**Nothing, by the program itself.** Lucent Raw does not contact any server: no analytics, no crash reports, no update checks, no licence server. The licence key is checked on your computer, without internet.
+**One thing only: the check for a newer version.** When the program starts it asks GitHub (github.com, where Lucent Raw is published) for the list of its releases, so it can tell you when a newer version is out.
+
+- **What is sent:** the request itself, with the words "LucentRaw" and the version you are running. As with any web request, GitHub sees your computer's internet (IP) address. GitHub's own privacy statement applies to what it does with that.
+- **What is not sent:** anything about you, your photos, your catalog, your licence or how you use the program. There is no identifier that could tell your copy from anyone else's.
+- **What it does with the answer:** shows a small notice that a newer version exists. Nothing is downloaded or installed by itself; if you press the notice, the release page opens in your web browser.
+- **Switching it off:** Preferences > Updates > "Look for a newer version when the program starts". With it off the program contacts nothing at all, and "Check now" asks only when you press it.
+
+Apart from that, Lucent Raw does not contact any server: no analytics, no crash reports, no licence server. The licence key is checked on your computer, without internet.
 
 The AI features (denoise, subject and object selection, depth, enlarging, face finding, B BOT and the look score) use small models that are inside the program and run on your computer. Your photos are not sent to any AI service.
 
@@ -53,7 +60,7 @@ Your data is protected by the security of your own computer (your Windows sign-i
 
 ## 9. Changes
 
-If a later version changes what is described here (for example adds an update check), this policy will be updated first, the date above will change, and the change will be listed in the program's notes.
+If a later version changes what is described here, this policy will be updated first, the date above will change, and the change will be listed in the program's notes. (17 November 2026: the check for a newer version was added, and is described in section 3.)
 
 ## 10. Contact
 

@@ -80,6 +80,29 @@ test.describe('F18 preferences', () => {
     await expect(list.getByText(/rawler for reading RAW files: LGPL-2\.1/)).toBeVisible()
   })
 
+  test('PF8 a newer version is announced in the header and in Preferences, and looking for one can be switched off', async ({ page }) => {
+    // nothing newer: no notice, and Check now says so
+    const dlg = await openPrefs(page)
+    await expect(page.getByRole('button', { name: /is available$/ })).toHaveCount(0)
+    const sw = dlg.getByRole('checkbox', { name: 'Look for a newer version when the program starts' })
+    await expect(sw).toBeChecked()
+    await dlg.getByRole('button', { name: 'Check now' }).click()
+    await expect(dlg.getByText('You have the newest version.')).toBeVisible()
+    await expect(dlg.getByText(/^Lucent Raw version 0.1.0-test18/)).toBeVisible() // About names the build, not only 0.1.0
+    // a newer one is published: the header says so at start, and Preferences offers its page
+    const dlg2 = await openPrefs(page, '?newer=0.1.0-test99')
+    await expect(page.getByRole('button', { name: 'Version 0.1.0-test99 is available' })).toBeVisible()
+    await expect(dlg2.getByText('Version 0.1.0-test99 is available.')).toBeVisible()
+    await expect(dlg2.getByRole('button', { name: 'Open the download page' })).toBeVisible()
+    // switched off: nothing is asked at start, so nothing is announced, until Check now is pressed
+    await dlg2.getByRole('checkbox', { name: 'Look for a newer version when the program starts' }).uncheck()
+    const dlg3 = await openPrefs(page, '?newer=0.1.0-test99')
+    await expect(page.getByRole('button', { name: /is available$/ })).toHaveCount(0)
+    await expect(dlg3.getByRole('checkbox', { name: 'Look for a newer version when the program starts' })).not.toBeChecked()
+    await dlg3.getByRole('button', { name: 'Check now' }).click()
+    await expect(dlg3.getByText('Version 0.1.0-test99 is available.')).toBeVisible()
+  })
+
   test('PF7 the window has no accessibility violations', async ({ page }) => {
     await openPrefs(page)
     expect((await new AxeBuilder({ page }).analyze()).violations.map((v) => v.id + ': ' + v.nodes.map((n) => n.target.join(' ')).join(' | '))).toEqual([])

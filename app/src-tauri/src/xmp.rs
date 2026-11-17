@@ -312,9 +312,45 @@ fn read_crs(descs: &[Node]) -> Option<Crs> {
     Some(c)
 }
 
+/// The biggest sidecar that is read, and the deepest its elements may be nested (a real one is a few levels deep).
+const MAX_SIDECAR_BYTES: usize = 8 * 1024 * 1024;
+const MAX_NESTING: usize = 64;
+
+/// How deeply the elements of `xml` are nested, counted from the tags alone (comments and instructions do not count).
+fn deepest_nesting(xml: &str) -> usize {
+    let b = xml.as_bytes();
+    let (mut depth, mut deepest, mut i) = (0usize, 0usize, 0usize);
+    while i < b.len() {
+        if b[i] != b'<' {
+            i += 1;
+            continue;
+        }
+        let end = b[i..].iter().position(|c| *c == b'>').map_or(b.len(), |p| i + p);
+        match b.get(i + 1) {
+            Some(b'/') => depth = depth.saturating_sub(1),
+            Some(b'?') | Some(b'!') => {}
+            _ if end > i && b[end - 1] == b'/' => {} // <a/> opens and closes
+            _ => {
+                depth += 1;
+                deepest = deepest.max(depth);
+            }
+        }
+        i = end + 1;
+    }
+    deepest
+}
+
 /// Read a sidecar. Anything it does not understand is ignored; text that is not XMP is an error.
 pub fn parse(xml: &str) -> Result<Sidecar, String> {
-    let opts = ParsingOptions { allow_dtd: false, ..Default::default() };
+    // A sidecar is a small, shallow file. One that is huge or nested hundreds deep is damaged or hostile, and reading it would
+    // run the program out of stack or memory: it is refused before the XML reader sees it.
+    if xml.len() > MAX_SIDECAR_BYTES {
+        return Err("it is too big to be a sidecar".into());
+    }
+    if deepest_nesting(xml) > MAX_NESTING {
+        return Err("it is nested too deeply to be a sidecar".into());
+    }
+    let opts = ParsingOptions { allow_dtd: false, nodes_limit: 200_000, ..Default::default() };
     let doc = Document::parse_with_options(xml.trim_start_matches('\u{FEFF}'), opts).map_err(|e| format!("it is not readable as XMP ({e})"))?;
     let descs: Vec<Node> = doc.descendants().filter(|n| n.is_element() && n.tag_name().namespace() == Some(NS_RDF) && n.tag_name().name() == "Description").collect();
     if descs.is_empty() {

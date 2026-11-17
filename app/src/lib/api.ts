@@ -13,6 +13,7 @@ function mockFromUrl(): Api {
     longNames: q.get('longnames') === '1',
     failWrites: q.get('fail') === '1',
     noFaces: q.get('nofaces') === '1',
+    newerVersion: q.get('newer') ?? undefined,
     failPreview: q.get('failpreview') === '1',
     mcpFail: q.get('mcpfail') === '1',
     bookFail: q.get('bookfail') === '1',
