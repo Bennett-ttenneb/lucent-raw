@@ -9,7 +9,7 @@ import type { WatchConfig, WatchStatus } from '../lib/types'
 import { type CardAction, type NumberFormat, type SizeUnits, AI_TOOLS, COMPONENTS, PREVIEW_LIMIT_GB, PREVIEW_MAX_DAYS, REMINDER_CHOICES, usePrefs, type ReminderDays } from '../lib/prefs'
 import { useSliderPrefs } from '../lib/sliderPrefs'
 import { useTheme, type ThemeChoice } from '../lib/theme'
-import { plural } from '../lib/format'
+import { aboutVersion, plural } from '../lib/format'
 import { useStore } from '../lib/store'
 import type { CacheInfo, CatalogDetails, DisplayProfile, PerfState, Progress } from '../lib/types'
 import { Dialog, ProgressBar } from './Primitives'
@@ -628,7 +628,7 @@ export function PreferencesDialog() {
         <fieldset className="export-group">
           <legend>About</legend>
           <p>
-            <strong>Lucent Raw</strong> version {version ?? APP_VERSION}. Your catalog is kept in <span className="path">{catalogPath ?? '…'}</span>.
+            <strong>Lucent Raw</strong> {aboutVersion(version ?? APP_VERSION)}. Your catalog is kept in <span className="path">{catalogPath ?? '…'}</span>.
           </p>
           <p className="hint">Built with other people's work. The main parts and their licences:</p>
           <ul className="plain-list" aria-label="What Lucent Raw is built with">

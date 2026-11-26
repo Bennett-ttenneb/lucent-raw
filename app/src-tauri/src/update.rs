@@ -19,8 +19,8 @@ pub fn donate_url() -> Option<&'static str> {
     DONATE_URL.starts_with("https://").then_some(DONATE_URL)
 }
 
-/// A version as numbers that sort: major, minor, patch, then the test build number (a finished release, with no
-/// "-testN", sorts after every test build of the same version). "v0.1.0-test17" and "0.1.0-test17" are the same.
+/// A version as numbers that sort: major, minor, patch, then the build number: "-testN" first, then "-betaN" (every beta sorts after
+/// every test build), then a finished release with no suffix. "v0.1.0-test17" and "0.1.0-test17" are the same.
 /// Anything that is not exactly that shape is not a version: it is never put into an address or shown.
 pub fn parse_version(v: &str) -> Option<(u32, u32, u32, u32)> {
     let v = v.trim();
@@ -38,11 +38,11 @@ pub fn parse_version(v: &str) -> Option<(u32, u32, u32, u32)> {
     let test = match pre {
         None => u32::MAX,
         Some(p) => {
-            let n = p.strip_prefix("test")?;
+            let (base, n) = if let Some(n) = p.strip_prefix("test") { (0, n) } else { (1_000_000, p.strip_prefix("beta")?) };
             if n.is_empty() || n.len() > 6 || !n.bytes().all(|b| b.is_ascii_digit()) {
                 return None;
             }
-            n.parse().ok()?
+            base + n.parse::<u32>().ok()?
         }
     };
     Some((a, b, c, test))
@@ -59,7 +59,7 @@ pub struct Update {
     pub url: Option<String>,
 }
 
-/// The page of a release. The version is checked first, so nothing but digits, dots and "-test" can be in the address.
+/// The page of a release. The version is checked first, so nothing but digits, dots and "-test" or "-beta" can be in the address.
 pub fn release_url(version: &str) -> Option<String> {
     parse_version(version)?;
     let v = version.trim();
@@ -126,6 +126,9 @@ mod tests {
         assert_eq!(parse_version("0.1.0-test17"), parse_version("v0.1.0-test17"));
         assert!(parse_version("0.1.0-test9") < parse_version("0.1.0-test17"), "17 is after 9, not before it");
         assert!(parse_version("0.1.0-test99") < parse_version("0.1.0"));
+        assert!(parse_version("0.1.0-test99") < parse_version("0.1.0-beta1"), "a beta is after every test build");
+        assert!(parse_version("0.1.0-beta2") > parse_version("0.1.0-beta1") && parse_version("0.1.0-beta99") < parse_version("0.1.0"));
+        assert_eq!(parse_version("0.1.0-beta1"), parse_version("v0.1.0-beta1"));
         assert!(parse_version("0.1.0") < parse_version("0.2.0-test1"));
         assert!(parse_version("1.0.0") > parse_version("0.9.9"));
     }
@@ -137,6 +140,10 @@ mod tests {
             assert_eq!(release_url(bad), None, "{bad:?}");
         }
         assert_eq!(release_url("0.1.0-test18").as_deref(), Some("https://github.com/Bennett-ttenneb/lucent-raw/releases/tag/v0.1.0-test18"));
+        assert_eq!(release_url("0.1.0-beta1").as_deref(), Some("https://github.com/Bennett-ttenneb/lucent-raw/releases/tag/v0.1.0-beta1"));
+        for bad in ["1.0.0-beta", "1.0.0-beta1x", "1.0.0-beta-1", "1.0.0-betas1"] {
+            assert_eq!(parse_version(bad), None, "{bad:?}");
+        }
     }
 
     #[test]
@@ -158,5 +165,9 @@ mod tests {
         assert!(newest("0.1.0-test17", "<html>not json</html>").is_err());
         assert!(newest("0.1.0-test17", r#"{"message": "rate limit"}"#).is_err());
         assert_eq!(newest("0.1.0-test17", "[]").unwrap().latest, None);
+        // Beta 1 is newer than any test build, and nothing is offered once on it
+        let beta = r#"[{"tag_name": "v0.1.0-test20", "draft": false}, {"tag_name": "v0.1.0-beta1", "draft": false}]"#;
+        assert_eq!(newest("0.1.0-test20", beta).unwrap().latest.as_deref(), Some("0.1.0-beta1"));
+        assert_eq!(newest("0.1.0-beta1", beta).unwrap().latest, None);
     }
 }

@@ -70,7 +70,7 @@ test.describe('F18 preferences', () => {
 
   test('PF6 About names the program, the version and what it is built with, including the library that asks for more than a notice', async ({ page }) => {
     const dlg = await openPrefs(page)
-    await expect(dlg.getByText(/^Lucent Raw version 0\.1\.0/)).toBeVisible()
+    await expect(dlg.getByText(/^Lucent Raw Beta 1/)).toBeVisible()
     await dlg.getByText('Privacy policy', { exact: true }).click()
     await expect(dlg.getByText(/bbotnicsindustries@gmail\.com/).first()).toBeVisible()
     await dlg.getByText('Terms and conditions', { exact: true }).click()
@@ -88,19 +88,19 @@ test.describe('F18 preferences', () => {
     await expect(sw).toBeChecked()
     await dlg.getByRole('button', { name: 'Check now' }).click()
     await expect(dlg.getByText('You have the newest version.')).toBeVisible()
-    await expect(dlg.getByText(/^Lucent Raw version 0.1.0-test20/)).toBeVisible() // About names the build, not only 0.1.0
+    await expect(dlg.getByText(/^Lucent Raw Beta 1/)).toBeVisible() // About names the build, not only 0.1.0
     // a newer one is published: the header says so at start, and Preferences offers its page
-    const dlg2 = await openPrefs(page, '?newer=0.1.0-test99')
-    await expect(page.getByRole('button', { name: 'Version 0.1.0-test99 is available' })).toBeVisible()
-    await expect(dlg2.getByText('Version 0.1.0-test99 is available.')).toBeVisible()
+    const dlg2 = await openPrefs(page, '?newer=0.1.0-beta2')
+    await expect(page.getByRole('button', { name: 'Beta 2 is available' })).toBeVisible()
+    await expect(dlg2.getByText('Beta 2 is available.')).toBeVisible()
     await expect(dlg2.getByRole('button', { name: 'Open the download page' })).toBeVisible()
     // switched off: nothing is asked at start, so nothing is announced, until Check now is pressed
     await dlg2.getByRole('checkbox', { name: 'Look for a newer version when the program starts' }).uncheck()
-    const dlg3 = await openPrefs(page, '?newer=0.1.0-test99')
+    const dlg3 = await openPrefs(page, '?newer=0.1.0-beta2')
     await expect(page.getByRole('button', { name: /is available$/ })).toHaveCount(0)
     await expect(dlg3.getByRole('checkbox', { name: 'Look for a newer version when the program starts' })).not.toBeChecked()
     await dlg3.getByRole('button', { name: 'Check now' }).click()
-    await expect(dlg3.getByText('Version 0.1.0-test99 is available.')).toBeVisible()
+    await expect(dlg3.getByText('Beta 2 is available.')).toBeVisible()
   })
 
   test('PF9 the Buy the developer a coffee button is in the header and under Licence when there is a donation page, and nowhere when there is not', async ({ page }) => {

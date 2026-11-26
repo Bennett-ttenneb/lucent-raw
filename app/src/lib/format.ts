@@ -66,6 +66,18 @@ export function capturedLabel(iso: string | null): string {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' })
 }
 
+/** "Beta 2" for 0.1.0-beta2, otherwise "Version 0.1.0-test20": how a version is named in a sentence. */
+export const versionName = (v: string) => {
+  const m = /-beta(\d+)$/.exec(v)
+  return m ? `Beta ${m[1]}` : `Version ${v}`
+}
+
+/** What About says after "Lucent Raw": "Beta 1 (0.1.0-beta1)", or "version 0.1.0-test20" for a test build. */
+export const aboutVersion = (v: string) => {
+  const m = /-beta(\d+)$/.exec(v)
+  return m ? `Beta ${m[1]} (${v})` : `version ${v}`
+}
+
 export const plural = (n: number, one: string, many = one + 's') => `${num(n)} ${n === 1 ? one : many}`
 
 /** A size in bytes as people say it: "1.9 GB", "320 MB", "12 KB". */

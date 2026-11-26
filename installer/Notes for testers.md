@@ -10,7 +10,9 @@ Thank you for trying Lucent Raw. This is an early version (0.1). It is a RAW pho
 - **It is free.** There is no trial and no licence key.
 - **Back up the catalog before updating**: Catalogs window > Automatic backups. The program does this by itself once a day and before any catalog upgrade.
 
-## New in this build (test 20)
+## New in this build (Beta 1)
+
+- **This is Lucent Raw Beta 1.** The "test" numbers are finished: what was test 20 is the first beta, with the same features. Beta 2, 3 and so on will follow. The program's update notice understands the new names, but copies older than Beta 1 do not, so this one needs to be installed by hand.
 
 - **Export > Social media > Optimise for.** Pick Instagram (portrait 4:5, square or landscape), Story/Reel/TikTok 9:16, Facebook or LinkedIn, X, or Pinterest and every photo comes out at exactly that size, as a high quality sRGB JPEG sharpened for the screen, with no camera details or place in the file. **Fit** chooses between filling the frame (the edges are cropped, from the middle) and keeping the whole photo (bars of a colour you choose). The preview shows the result. Please try a few photos in each shape and tell me if the crop cuts a face or the colours look different on your phone.
 - **Import > Include photos in sub-folders.** On by default, as before. Untick it to bring in only the photos in the folder you chose. What you pick is remembered for next time.

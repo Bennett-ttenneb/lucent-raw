@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { api } from '../lib/api'
 import { usePrefs } from '../lib/prefs'
+import { versionName } from '../lib/format'
 
 /** What is known about a newer version: asked of GitHub at most once at start (when that is switched on) and on "Check now". */
 export const useUpdate = create<{
@@ -32,7 +33,7 @@ export const useUpdate = create<{
     set({ checking: true, note: null })
     try {
       const u = await api().updateCheck()
-      set({ version: u.current, latest: u.latest, note: u.latest ? `Version ${u.latest} is available.` : 'You have the newest version.' })
+      set({ version: u.current, latest: u.latest, note: u.latest ? `${versionName(u.latest)} is available.` : 'You have the newest version.' })
     } catch (e) {
       set({ note: (e as Error).message || String(e) })
     } finally {
@@ -69,7 +70,7 @@ export function UpdateChip() {
   if (!latest) return null
   return (
     <button type="button" className="btn sm licence-chip" data-state="trial" onClick={() => void api().updateOpen(latest)} title="A newer version is on GitHub. This opens its page in your web browser; nothing is installed by itself.">
-      Version {latest} is available
+      {versionName(latest)} is available
     </button>
   )
 }
